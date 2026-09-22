@@ -7,64 +7,99 @@
 <meta name="theme-color" content="#0d130f">
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/logo.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="stylesheet" href="style.css">
 </head>
 <body class="auth-body">
-  <div class="auth-box">
-    <div class="auth-logo">
-      <img src="/logo.svg" alt="NexaRemote logo" class="brand-logo">
-    </div>
-    <h1>NexaRemote</h1>
-    <p class="auth-sub">Nexatech &middot; Le app del futuro</p>
-    <p class="auth-tag">Il telecomando del tuo PC, dal tuo telefono.</p>
 
-    <div class="auth-tabs">
-      <button class="auth-tab active" id="tabLogin">Accedi</button>
-      <button class="auth-tab" id="tabRegister">Registrati</button>
-    </div>
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
+  <symbol id="i-power" viewBox="0 0 24 24"><path d="M12 2v10"/><path d="M18.4 6.6A9 9 0 1 0 20 12"/></symbol>
+  <symbol id="i-pc" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="13" rx="2"/><line x1="12" y1="17" x2="12" y2="21"/><line x1="8" y1="21" x2="16" y2="21"/></symbol>
+  <symbol id="i-screen" viewBox="0 0 24 24"><path d="m23 7-6 5 6 5z"/><rect x="1" y="5" width="15" height="14" rx="2"/></symbol>
+  <symbol id="i-term" viewBox="0 0 24 24"><polyline points="4 17 10 12 4 7"/><line x1="12" y1="19" x2="20" y2="19"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2"/><polyline points="22 7 12 13 2 7"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+  <symbol id="i-win" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M3 5.5 10.2 4.6v6.8H3zM21 5.5l-6.8-1v6.8h6.8zM3 13.6l7.2-.9v6.7L3 17.9zM14.2 12.7l6.8-1-1.1 6.2-5.7.8z"/></symbol>
+  <symbol id="i-mac" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="11" rx="2"/><line x1="12" y1="16" x2="12" y2="19"/><line x1="8" y1="19" x2="16" y2="19"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="3" y1="12" x2="21" y2="12"/><path d="M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18z"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><polyline points="4 12 10 18 20 6"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></symbol>
+</svg>
 
-    <div class="auth-section" id="authSectionLogin">
-      <h2 class="auth-title">Hai un account?</h2>
-      <form id="formLogin" autocomplete="on">
-        <label for="loginEmail">Email</label>
+<div class="auth-box">
+  <div class="auth-logo">
+    <img src="/logo.svg" alt="NexaRemote logo" class="brand-logo">
+  </div>
+  <h1>NexaRemote</h1>
+  <p class="auth-sub">Nexatech &middot; Le app del futuro</p>
+  <p class="auth-tag">Il telecomando del tuo PC, dal tuo telefono.</p>
+
+  <div class="auth-tabs">
+    <button class="auth-tab active" id="tabLogin">Accedi</button>
+    <button class="auth-tab" id="tabRegister">Registrati</button>
+  </div>
+
+  <div class="auth-section" id="authSectionLogin">
+    <h2 class="auth-title">Hai un account?</h2>
+    <form id="formLogin" autocomplete="on">
+      <label for="loginEmail">Email</label>
+      <div class="in-wrap">
+        <svg class="ic in-ic"><use href="#i-mail"/></svg>
         <input type="email" id="loginEmail" required placeholder="tu@email.it">
-        <label for="loginPassword">Password</label>
+      </div>
+      <label for="loginPassword">Password</label>
+      <div class="in-wrap">
+        <svg class="ic in-ic"><use href="#i-lock"/></svg>
         <input type="password" id="loginPassword" required placeholder="Password">
-        <button type="submit" class="btn-primary">Entra</button>
-      </form>
-    </div>
+      </div>
+      <button type="submit" class="btn-primary">Entra</button>
+    </form>
+  </div>
 
-    <div class="auth-section" id="authSectionRegister">
-      <h2 class="auth-title">Sei nuovo? Crea un account</h2>
-      <form id="formRegister" autocomplete="on">
-        <label for="regNome">Nome</label>
-        <input type="text" id="regNome" required placeholder="Il tuo nome">
-        <label for="regEmail">Email</label>
+  <div class="auth-section" id="authSectionRegister">
+    <h2 class="auth-title">Sei nuovo? Crea un account</h2>
+    <form id="formRegister" autocomplete="on">
+      <label for="regNome">Nome</label>
+      <input type="text" id="regNome" required placeholder="Il tuo nome">
+      <label for="regEmail">Email</label>
+      <div class="in-wrap">
+        <svg class="ic in-ic"><use href="#i-mail"/></svg>
         <input type="email" id="regEmail" required placeholder="tu@email.it">
-        <label for="regPassword">Password</label>
+      </div>
+      <label for="regPassword">Password</label>
+      <div class="in-wrap">
+        <svg class="ic in-ic"><use href="#i-lock"/></svg>
         <input type="password" id="regPassword" required placeholder="Minimo 4 caratteri">
-        <label>Usi un Mac o un PC Windows?</label>
-        <div class="os-pick" id="regOs">
-          <label class="os-option"><input type="radio" name="os" value="windows" checked><span>Windows</span></label>
-          <label class="os-option"><input type="radio" name="os" value="mac"><span>Mac</span></label>
-        </div>
-        <button type="submit" class="btn-primary">Crea account</button>
-        <a href="#" class="tutorial-link" id="tutorialLink">Come collego il mio dispositivo?</a>
-      </form>
-    </div>
-
-    <div class="auth-status" id="authStatus"></div>
+      </div>
+      <label>Usi un Mac o un PC Windows?</label>
+      <div class="os-pick" id="regOs">
+        <label class="os-option"><input type="radio" name="os" value="windows" checked><svg class="ic os-ic"><use href="#i-win"/></svg><span>Windows</span></label>
+        <label class="os-option"><input type="radio" name="os" value="mac"><svg class="ic os-ic"><use href="#i-mac"/></svg><span>Mac</span></label>
+      </div>
+      <button type="submit" class="btn-primary">Crea account</button>
+      <a href="#" class="tutorial-link" id="tutorialLink">Come collego il mio dispositivo?</a>
+    </form>
   </div>
 
-  <div class="tutorial-overlay hidden" id="tutorialOverlay">
-    <div class="tutorial-box">
-      <button class="tutorial-close" id="tutorialClose" aria-label="Chiudi">X</button>
-      <div id="tutorialContent"></div>
-    </div>
+  <div class="auth-status" id="authStatus"></div>
+
+  <div class="feature-grid">
+    <div class="feature"><svg class="ic"><use href="#i-power"/></svg><span>Controlla il PC</span></div>
+    <div class="feature"><svg class="ic"><use href="#i-screen"/></svg><span>Vedi lo schermo</span></div>
+    <div class="feature"><svg class="ic"><use href="#i-term"/></svg><span>Terminale remoto</span></div>
   </div>
+
+  <p class="auth-foot">Progetto open source di <a href="https://github.com/FiGooX14/nexa-remote" target="_blank" rel="noopener">Nexatech</a></p>
+</div>
+
+<div class="tutorial-overlay hidden" id="tutorialOverlay">
+  <div class="tutorial-box">
+    <button class="tutorial-close" id="tutorialClose" aria-label="Chiudi"><svg class="ic"><use href="#i-close"/></svg></button>
+    <div id="tutorialContent"></div>
+  </div>
+</div>
 
 <script>
 const $ = (id) => document.getElementById(id);
@@ -89,6 +124,7 @@ let chosenOs = 'windows';
 const TUTORIALS = {
   windows: {
     title: 'Colleghi un PC Windows',
+    icon: 'i-win',
     steps: [
       'Scarica il progetto da GitHub: apri https://github.com/FiGooX14/nexa-remote, clicca "Code" e poi "Download ZIP". Estrai la cartella dove vuoi.',
       'Installa Node.js: scarica l\'ultima versione LTS dal sito ufficiale nodejs.org e installala (continua sempre su "Avanti").',
@@ -102,6 +138,7 @@ const TUTORIALS = {
   },
   mac: {
     title: 'Colleghi un Mac',
+    icon: 'i-mac',
     steps: [
       'Scarica il progetto da GitHub: apri https://github.com/FiGooX14/nexa-remote, clicca "Code" e poi "Download ZIP". Estrai la cartella dove vuoi.',
       'Installa Node.js: scarica l\'ultima versione LTS dal sito ufficiale nodejs.org e installala.',
@@ -118,17 +155,19 @@ const TUTORIALS = {
 
 function showTutorial(os) {
   const c = TUTORIALS[os] || TUTORIALS.windows;
-  $('tutorialContent').innerHTML = '';
+  const content = $('tutorialContent');
+  content.innerHTML = '';
   const h = document.createElement('h2');
   h.textContent = c.title;
-  $('tutorialContent').appendChild(h);
+  content.appendChild(h);
   const ol = document.createElement('ol');
+  ol.className = 't-steps';
   c.steps.forEach((s) => {
     const li = document.createElement('li');
     li.textContent = s;
     ol.appendChild(li);
   });
-  $('tutorialContent').appendChild(ol);
+  content.appendChild(ol);
   $('tutorialOverlay').classList.remove('hidden');
 }
 
