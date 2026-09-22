@@ -207,6 +207,7 @@ const btnLiveFullscreen = $('btnLiveFullscreen');
 const liveWrap = $('liveWrap');
 const liveImg = $('liveImg');
 const liveSize = $('liveSize');
+const btnRotateLive = $('btnRotateLive');
 let liveTimer = null;
 let liveActive = false;
 let liveAudio = null;
@@ -218,6 +219,8 @@ function stopLive() {
   btnLive.textContent = 'Avvia live';
   liveWrap.classList.add('hidden');
   btnLiveFullscreen.disabled = true;
+  btnLiveFullscreen.textContent = 'Schermo intero';
+  liveImg.classList.remove('rotated');
   if (liveAudio) { liveAudio.pause(); liveAudio.src = ''; liveAudio = null; }
 }
 
@@ -269,6 +272,10 @@ function onFsChange() {
 }
 document.addEventListener('fullscreenchange', onFsChange);
 document.addEventListener('webkitfullscreenchange', onFsChange);
+
+btnRotateLive.addEventListener('click', () => {
+  liveImg.classList.toggle('rotated');
+});
 
 const btnMic = $('btnMic');
 let micRunning = false;
