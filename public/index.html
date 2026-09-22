@@ -90,25 +90,28 @@ const TUTORIALS = {
   windows: {
     title: 'Colleghi un PC Windows',
     steps: [
-      'Apri NexaRemote sul PC: da "Apri NEXA.bat" oppure con il comando "node server.js" dentro la cartella del progetto.',
-      'Collega il telefono alla stessa rete Wi-Fi del PC (o usa Tailscale per essere connesso anche da fuori casa).',
-      'Sul PC scopri l\'indirizzo: nella pagina aperta trovi un IP del tipo 192.168.x.x:3002, oppure il tuo nome da Tailscale (es. nome.tailNNNNN.ts.net).',
+      'Scarica il progetto da GitHub: apri https://github.com/FiGooX14/nexa-remote, clicca "Code" e poi "Download ZIP". Estrai la cartella dove vuoi.',
+      'Installa Node.js: scarica l\'ultima versione LTS dal sito ufficiale nodejs.org e installala (continua sempre su "Avanti").',
+      'Apri un terminale (cmd o PowerShell) nella cartella del progetto e scrivi: npm install  (serve solo la prima volta).',
+      'Avvia NexaRemote con un doppio click su "Avvia-NexaRemote.bat" (oppure da terminale: node server.js). Tieni la finestra aperta.',
+      'Collega il telefono alla stessa rete Wi-Fi del PC (o usa Tailscale se vuoi usarlo anche fuori casa).',
+      'Trovare l\'indirizzo: nella finestra del server c\'è scritto un IP del tipo http://192.168.x.x:3002.',
       'Da questo telefono apri il browser (Chrome o Safari) e scrivi quell\'indirizzo.',
-      'Fai accesso con la email e la password che hai appena creato.',
-      'Prova un comando, ad esempio il volume o "Avvia live": il PC deve rispondere.'
+      'Registrati con nome, email e password, poi prova un comando (es. volume o "Avvia live"): il PC deve rispondere.'
     ]
   },
   mac: {
     title: 'Colleghi un Mac',
     steps: [
-      'Installa Node.js sul Mac (scaricane l\'ultima versione dal sito ufficiale nodejs.org).',
-      'Apri l\'app "Terminale" (cerchilo con Spotlight) e vai nella cartella di NexaRemote, poi avvialo con il comando: node server.js',
+      'Scarica il progetto da GitHub: apri https://github.com/FiGooX14/nexa-remote, clicca "Code" e poi "Download ZIP". Estrai la cartella dove vuoi.',
+      'Installa Node.js: scarica l\'ultima versione LTS dal sito ufficiale nodejs.org e installala.',
+      'Apri l\'app "Terminale" (cercala con Spotlight), vai nella cartella del progetto e scrivi: npm install  (serve solo la prima volta).',
+      'Avvia il server con il comando: node server.js  (tieni il Terminale aperto).',
       'Da Preferenze di Sistema apri "Privacy e sicurezza" e spunta il Terminale in "Accessibilità" e "Registrazione dello schermo" (così funzionano tastiera, volume, screenshot e live).',
-      'Collega il telefono alla stessa rete Wi-Fi del Mac (o usa Tailscale per essere connesso anche da fuori casa).',
-      'Dal Mac scopri l\'indirizzo: nella pagina aperta trovi un IP del tipo 192.168.x.x:3002, oppure il tuo nome da Tailscale (es. nome.tailNNNNN.ts.net).',
+      'Collega il telefono alla stessa rete Wi-Fi del Mac (o usa Tailscale se vuoi usarlo anche fuori casa).',
+      'Trovare l\'indirizzo: nella finestra del server c\'è scritto un IP del tipo http://192.168.x.x:3002.',
       'Da questo telefono apri il browser e scrivi quell\'indirizzo.',
-      'Fai accesso con la email e la password che hai appena creato.',
-      'Prova un comando, ad esempio il volume o "Avvia live": il Mac deve rispondere. Per il touchpad serve installare cliclick sul Mac (comando: brew install cliclick).'
+      'Registrati con nome, email e password, poi prova un comando (es. volume o "Avvia live"): il Mac deve rispondere. Per il touchpad serve installare cliclick sul Mac (comando: brew install cliclick).'
     ]
   }
 };
