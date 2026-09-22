@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NexaRemote - Accedi</title>
+<meta name="theme-color" content="#0d130f">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/logo.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="auth-body">
+  <div class="auth-box">
+    <div class="auth-logo">
+      <img src="/logo.svg" alt="NexaRemote logo" class="brand-logo">
+    </div>
+    <h1>NexaRemote</h1>
+    <p class="auth-sub">Nexatech &middot; Le app del futuro</p>
+    <p class="auth-tag">Il telecomando del tuo PC, dal tuo telefono.</p>
+
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tabLogin">Accedi</button>
+      <button class="auth-tab" id="tabRegister">Registrati</button>
+    </div>
+
+    <div class="auth-section" id="authSectionLogin">
+      <h2 class="auth-title">Hai un account?</h2>
+      <form id="formLogin" autocomplete="on">
+        <label for="loginEmail">Email</label>
+        <input type="email" id="loginEmail" required placeholder="tu@email.it">
+        <label for="loginPassword">Password</label>
+        <input type="password" id="loginPassword" required placeholder="Password">
+        <button type="submit" class="btn-primary">Entra</button>
+      </form>
+    </div>
+
+    <div class="auth-section" id="authSectionRegister">
+      <h2 class="auth-title">Sei nuovo? Crea un account</h2>
+      <form id="formRegister" autocomplete="on">
+        <label for="regNome">Nome</label>
+        <input type="text" id="regNome" required placeholder="Il tuo nome">
+        <label for="regEmail">Email</label>
+        <input type="email" id="regEmail" required placeholder="tu@email.it">
+        <label for="regPassword">Password</label>
+        <input type="password" id="regPassword" required placeholder="Minimo 4 caratteri">
+        <label>Usi un Mac o un PC Windows?</label>
+        <div class="os-pick" id="regOs">
+          <label class="os-option"><input type="radio" name="os" value="windows" checked><span>Windows</span></label>
+          <label class="os-option"><input type="radio" name="os" value="mac"><span>Mac</span></label>
+        </div>
+        <button type="submit" class="btn-primary">Crea account</button>
+        <a href="#" class="tutorial-link" id="tutorialLink">Come collego il mio dispositivo?</a>
+      </form>
+    </div>
+
+    <div class="auth-status" id="authStatus"></div>
+  </div>
+
+  <div class="tutorial-overlay hidden" id="tutorialOverlay">
+    <div class="tutorial-box">
+      <button class="tutorial-close" id="tutorialClose" aria-label="Chiudi">X</button>
+      <div id="tutorialContent"></div>
+    </div>
+  </div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const tabs = { login: $('tabLogin'), register: $('tabRegister') };
+const sec = { login: $('authSectionLogin'), register: $('authSectionRegister') };
+const status = $('authStatus');
+
+function setTab(which) {
+  tabs.login.classList.toggle('active', which === 'login');
+  tabs.register.classList.toggle('active', which === 'register');
+  sec.login.classList.toggle('active', which === 'login');
+  sec.register.classList.toggle('active', which === 'register');
+  status.textContent = '';
+}
+
+tabs.login.addEventListener('click', () => setTab('login'));
+tabs.register.addEventListener('click', () => setTab('register'));
+
+const osOptions = document.querySelectorAll('.os-option');
+let chosenOs = 'windows';
+
+const TUTORIALS = {
+  windows: {
+    title: 'Colleghi un PC Windows',
+    steps: [
+      'Apri NexaRemote sul PC: da "Apri NEXA.bat" oppure con il comando "node server.js" dentro la cartella del progetto.',
+      'Collega il telefono alla stessa rete Wi-Fi del PC (o usa Tailscale per essere connesso anche da fuori casa).',
+      'Sul PC scopri l\'indirizzo: nella pagina aperta trovi un IP del tipo 192.168.x.x:3002, oppure il tuo nome da Tailscale (es. nome.tailNNNNN.ts.net).',
+      'Da questo telefono apri il browser (Chrome o Safari) e scrivi quell\'indirizzo.',
+      'Fai accesso con la email e la password che hai appena creato.',
+      'Prova un comando, ad esempio il volume o "Avvia live": il PC deve rispondere.'
+    ]
+  },
+  mac: {
+    title: 'Colleghi un Mac',
+    steps: [
+      'Installa Node.js sul Mac (scaricane l\'ultima versione dal sito ufficiale nodejs.org).',
+      'Apri l\'app "Terminale" (cerchilo con Spotlight) e vai nella cartella di NexaRemote, poi avvialo con il comando: node server.js',
+      'Da Preferenze di Sistema apri "Privacy e sicurezza" e spunta il Terminale in "Accessibilità" e "Registrazione dello schermo" (così funzionano tastiera, volume, screenshot e live).',
+      'Collega il telefono alla stessa rete Wi-Fi del Mac (o usa Tailscale per essere connesso anche da fuori casa).',
+      'Dal Mac scopri l\'indirizzo: nella pagina aperta trovi un IP del tipo 192.168.x.x:3002, oppure il tuo nome da Tailscale (es. nome.tailNNNNN.ts.net).',
+      'Da questo telefono apri il browser e scrivi quell\'indirizzo.',
+      'Fai accesso con la email e la password che hai appena creato.',
+      'Prova un comando, ad esempio il volume o "Avvia live": il Mac deve rispondere. Per il touchpad serve installare cliclick sul Mac (comando: brew install cliclick).'
+    ]
+  }
+};
+
+function showTutorial(os) {
+  const c = TUTORIALS[os] || TUTORIALS.windows;
+  $('tutorialContent').innerHTML = '';
+  const h = document.createElement('h2');
+  h.textContent = c.title;
+  $('tutorialContent').appendChild(h);
+  const ol = document.createElement('ol');
+  c.steps.forEach((s) => {
+    const li = document.createElement('li');
+    li.textContent = s;
+    ol.appendChild(li);
+  });
+  $('tutorialContent').appendChild(ol);
+  $('tutorialOverlay').classList.remove('hidden');
+}
+
+function hideTutorial() {
+  $('tutorialOverlay').classList.add('hidden');
+}
+
+osOptions.forEach((opt) => {
+  opt.addEventListener('click', () => {
+    const radio = opt.querySelector('input');
+    radio.checked = true;
+    chosenOs = radio.value;
+    osOptions.forEach((o) => o.classList.toggle('selected', o === opt));
+    showTutorial(chosenOs);
+  });
+});
+const firstSelected = document.querySelector('.os-option input:checked');
+if (firstSelected) {
+  chosenOs = firstSelected.value;
+  firstSelected.closest('.os-option').classList.add('selected');
+}
+
+$('tutorialClose').addEventListener('click', hideTutorial);
+$('tutorialOverlay').addEventListener('click', (e) => {
+  if (e.target === $('tutorialOverlay')) hideTutorial();
+});
+$('tutorialLink').addEventListener('click', (e) => {
+  e.preventDefault();
+  showTutorial(chosenOs);
+});
+
+const formLogin = $('formLogin');
+const formRegister = $('formRegister');
+
+function showMsg(msg, ok) {
+  status.textContent = msg;
+  status.classList.toggle('warn', !ok);
+}
+
+async function post(url, body) {
+  try {
+    const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    return { status: r.status, data: await r.json().catch(() => ({})) };
+  } catch (e) {
+    return { status: 0, data: { error: 'PC non raggiungibile. Attiva Tailscale sul telefono oppure apri l\'indirizzo giusto (http://IP-del-PC:3002 da casa).' } };
+  }
+}
+
+formLogin.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const { status: st, data } = await post('/api/login', { email: $('loginEmail').value.trim(), password: $('loginPassword').value });
+  if (st === 200) { location.href = '/remote'; } else { showMsg(data.error || 'Errore di accesso', false); }
+});
+
+formRegister.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const osEl = document.querySelector('input[name="os"]:checked');
+  const { status: st, data } = await post('/api/register', { nome: $('regNome').value.trim(), email: $('regEmail').value.trim(), password: $('regPassword').value, os: chosenOs || (osEl ? osEl.value : 'windows') });
+  if (st === 200) { location.href = '/remote'; } else { showMsg(data.error || 'Errore di registrazione', false); }
+});
+
+(async () => {
+  const r = await fetch('/api/session');
+  const d = await r.json();
+  if (d.ok && d.user) location.href = '/remote';
+})();
+if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(() => {}); }
+</script>
+</body>
+</html>

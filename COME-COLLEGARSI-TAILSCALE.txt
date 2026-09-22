@@ -1,0 +1,48 @@
+COME COLLEGARE IL TELEFONO AL PC ANCHE DA FUORI CASA (Tailscale)
+================================================================
+
+Tailscale crea una rete privata "mia" tra PC e telefono, cifrata, gratis e
+sicura. Niente porte aperte, niente costi.
+
+PASSO 1 - SU QUESTO PC
+----------------------
+
+Esiste il file:  C:\Users\Utente\Desktop\tailscale-setup.msi
+
+- Fai doppio click su tailscale-setup.msi
+- Se Windows chiede "Consenti a questa app di apportare modifiche?" -> Si
+- Al termine, cerca l'icona di Tailscale nella barra in basso a destra
+  (la freccia "di nascosto" accanto all'orologio, a volte e' li' dentro)
+- Clicca sull'icona -> Log in / Login
+- Si apre il browser: scegli un account (Google o qualunque email) e crea
+  l'account Tailscale gratis. Il PC entra nella rete.
+- Vedrai il nome del PC nella lista dispositivi della pagina tailscale.com.
+
+PASSO 2 - SUL TELEFONO
+----------------------
+
+- Apri l'app store del tuo telefono:
+  -> iPhone: App Store, cerca "Tailscale"
+  -> Android: Play Store, cerca "Tailscale"
+- Installala, aprilA e fai Login con lo STESSO account di prima.
+- Il telefono ora e' collegato al PC ovunque ci sia internet (4G, wifi
+  di casa, wifi di amici), non solo sulla stessa rete.
+
+PASSO 3 - AVVIARE NEXAREMOTE
+----------------------------
+
+- Da PowerShell:  node server.js  dentro E:\Nexatech\nexa-remote
+  (il server deve restare acceso, come per Sentinel)
+
+PASSO 4 - USARE NEXAREMOTE
+--------------------------
+
+- Dal telefono, apri Tailscale: vedi il tuo PC con un IP tipo 100.a.b.c
+- Nel browser del telefono scrivi:  http://100.a.b.c:3002
+- Accedi e usa NexaRemote.
+
+Quando avrai fatto il login su entrambi (PC e telefono), dimmi e io:
+  - attivo il certificato HTTPS (per installare NexaRemote come VERA app
+    con icona sulla home del telefono, senza barra del browser)
+  - creo l'indirizzo stabile tipo https://nome-pc.ts.net
+  - faccio un test del collegamento.

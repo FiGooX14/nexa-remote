@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>NexaRemote</title>
+<meta name="theme-color" content="#0d130f">
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/logo.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="remote-body">
+
+<header class="topbar">
+  <div class="topbar-left">
+    <div class="boot-dot" id="bootDot" title="Stato PC"></div>
+    <img src="/logo.svg" alt="NexaRemote" class="brand-logo-sm">
+    <div class="topbar-title">
+      <span class="br-name">NexaRemote</span>
+      <span class="br-sub" id="hostInfo">PC</span>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <button class="icon-btn" id="btnInstall" title="Installa come app" hidden>Installa</button>
+    <button class="icon-btn" id="btnRefresh" title="Aggiorna">R</button>
+    <button class="icon-btn" id="btnLogout" title="Esci">Esci</button>
+  </div>
+</header>
+
+<div class="alert-banner hidden" id="bootBanner"></div>
+
+<main class="view" id="view">
+  <section class="panel" id="panel-home">
+    <div class="home-grid">
+      <button class="tile tile-danger" data-action="shutdown">
+        <span class="tile-label">Spegni</span>
+      </button>
+      <button class="tile tile-warn" data-action="restart">
+        <span class="tile-label">Riavvia</span>
+      </button>
+      <button class="tile" data-action="lock">
+        <span class="tile-label">Blocca</span>
+      </button>
+      <button class="tile" data-action="sleep">
+        <span class="tile-label">Sospendi</span>
+      </button>
+      <button class="tile" data-action="logout">
+        <span class="tile-label">Disconnetti</span>
+      </button>
+      <button class="tile" data-action="hibernate">
+        <span class="tile-label">Iberna</span>
+      </button>
+
+      <div class="tile-spacer"></div>
+      <button class="tile" data-action="showDesktop">
+        <span class="tile-label">Mostra desktop</span>
+      </button>
+      <button class="tile" data-action="taskManager">
+        <span class="tile-label">Gestore attività</span>
+      </button>
+    </div>
+  </section>
+
+  <section class="panel" id="panel-audio">
+    <div class="section-title">Volume e musica</div>
+    <div class="row-3">
+      <button class="big-btn" data-action="volumeDown">Vol -</button>
+      <button class="big-btn accent" data-action="volumeMute">Muto</button>
+      <button class="big-btn" data-action="volumeUp">Vol +</button>
+    </div>
+    <div class="section-title">Controlli media</div>
+    <div class="row-3">
+      <button class="big-btn" data-action="mediaPrev">Precedente</button>
+      <button class="big-btn accent" data-action="mediaPlayPause">Play / Pausa</button>
+      <button class="big-btn" data-action="mediaNext">Successivo</button>
+    </div>
+  </section>
+
+  <section class="panel" id="panel-screen">
+    <div class="section-title">Schermo</div>
+    <button class="big-btn accent wide" id="btnScreenshot">Fa una foto (screenshot)</button>
+    <div class="screen-wrap hidden" id="screenWrap">
+      <img id="screenImg" alt="Screenshot del PC">
+      <button class="ghost-btn" id="btnHideScreenshot">Nascondi foto</button>
+    </div>
+    <div class="section-title">Schermo live</div>
+    <div class="row-2">
+      <button class="big-btn" id="btnLive">Avvia live</button>
+      <button class="big-btn" id="btnLiveFullscreen" disabled>Schermo intero</button>
+    </div>
+    <div class="live-wrap hidden" id="liveWrap">
+      <img id="liveImg" alt="Schermo live">
+      <div class="live-size" id="liveSize"></div>
+    </div>
+    <div class="section-title">Parla al PC</div>
+    <p class="hint">Usa il microfono del telefono come un walkie-talkie: la tua voce esce dagli altoparlanti del PC.</p>
+    <button class="big-btn accent wide" id="btnMic">Attiva microfono</button>
+    <p class="hint hidden" id="micUnsupported">Microfono non disponibile su questo dispositivo.</p>
+    <p class="hint">In viv si sente anche l'audio del PC: alza il volume del telefono.</p>
+    <div class="section-title">Luminosita</div>
+    <div id="brightSection">
+      <div class="bright-row">
+        <button class="big-btn" data-action="brightness" data-payload='{"value":20}'>-</button>
+        <input type="range" id="brightRange" min="1" max="100" value="50">
+        <button class="big-btn" data-action="brightness" data-payload='{"value":80}'>+</button>
+      </div>
+    </div>
+    <p class="hint hidden" id="brightUnsupported"></p>
+  </section>
+
+  <section class="panel" id="panel-apps">
+    <div class="section-title">Apri programmi</div>
+    <div class="grid-2">
+      <button class="big-btn" data-action="openApp" data-payload='{"app":"browser"}'>Browser</button>
+      <button class="big-btn" data-action="openApp" data-payload='{"app":"calculator"}'>Calcolatrice</button>
+      <button class="big-btn" data-action="openApp" data-payload='{"app":"notepad"}'>Blocco note</button>
+      <button class="big-btn" data-action="openApp" data-payload='{"app":"explorer"}'>Esplora file</button>
+      <button class="big-btn" data-action="openApp" data-payload='{"app":"paint"}'>Paint</button>
+      <button class="big-btn" data-action="openApp" data-payload='{"app":"settings"}'>Impostazioni</button>
+      <button class="big-btn" data-action="openApp" data-payload='{"app":"thispc"}'>Questo PC</button>
+      <button class="big-btn" data-action="openApp" data-payload='{"app":"taskmanager"}'>Gestore attivita</button>
+      <button class="big-btn" data-action="openApp" data-payload='{"app":"copilot"}'>Copilot</button>
+    </div>
+    <div class="section-title">Programmi aperti</div>
+    <button class="ghost-btn" id="btnListApps">Aggiorna lista</button>
+    <ul class="app-list" id="appList"></ul>
+  </section>
+
+  <section class="panel" id="panel-touch">
+    <div class="section-title">Touchpad</div>
+    <div class="pad" id="touchpad">
+      <div class="pad-hint">Trascina per muovere il cursore</div>
+    </div>
+    <div class="row-3">
+      <button class="big-btn" id="btnTap">Click</button>
+      <button class="big-btn" id="btnRightClick">Click destro</button>
+      <button class="big-btn" id="btnDoubleRight">Doppio click</button>
+    </div>
+    <div class="row-3">
+      <button class="big-btn" data-scroll="-3">Su</button>
+      <button class="big-btn accent" id="btnScrolStop">Stop</button>
+      <button class="big-btn" data-scroll="3">Giu</button>
+    </div>
+    <div class="section-title">Tastiera remota</div>
+    <div class="keyboard-zone">
+      <textarea id="kbText" rows="2" placeholder="Scrivi qui, verra digitato sul PC"></textarea>
+      <button class="big-btn accent" id="btnType">Invia al PC</button>
+    </div>
+    <div class="section-title">Tasti rapidi</div>
+    <div class="row-3">
+      <button class="big-btn" data-action="key" data-payload='{"key":"esc"}'>Esc</button>
+      <button class="big-btn" data-action="key" data-payload='{"key":"space"}'>Spazio</button>
+      <button class="big-btn" data-action="key" data-payload='{"key":"enter"}'>Invio</button>
+    </div>
+    <div class="section-title">Presentazioni (slide)</div>
+    <div class="row-3">
+      <button class="big-btn" data-action="key" data-payload='{"key":"left"}'>Slide indietro</button>
+      <button class="big-btn accent" data-action="key" data-payload='{"key":"right"}'>Slide avanti</button>
+    </div>
+  </section>
+
+  <section class="panel" id="panel-terminal">
+    <div class="section-title">Terminale remoto</div>
+    <p class="hint">Scrivi un comando PowerShell. I comandi pericolosi (format, diskpart, ecc.) vengono bloccati.</p>
+    <textarea id="termInput" rows="3" placeholder="PS> Write-Host 'Ciao dal telefono'"></textarea>
+    <div class="row-2">
+      <button class="big-btn accent" id="btnTermRun">Esegui</button>
+      <button class="ghost-btn" id="btnTermClear">Pulisci</button>
+    </div>
+    <pre class="term-out" id="termOut"></pre>
+  </section>
+
+  <section class="panel" id="panel-custom">
+    <div class="section-title">Pulsanti personalizzati</div>
+    <p class="hint">Scegli nome e programma o URL da aprire (es. C:\Programmi\mio-gioco.exe o https://...).</p>
+    <div class="custom-add">
+      <input id="btnName" placeholder="Nome pulsante" maxlength="30">
+      <input id="btnTarget" placeholder="Programma o URL" maxlength="128">
+      <button class="big-btn accent" id="btnAddButton">Aggiungi</button>
+    </div>
+    <div class="row-2">
+      <button class="ghost-btn" id="btnRunCustom">Apri pulsanti evidenziati</button>
+      <button class="ghost-btn" id="btnSaveButtons">Salva su questo PC</button>
+    </div>
+    <ul class="custom-list" id="customList"></ul>
+  </section>
+
+  <section class="panel" id="panel-info">
+    <div class="section-title">Stato del PC</div>
+    <div class="info-grid" id="infoGrid"></div>
+  </section>
+</main>
+
+<nav class="tabbar">
+  <button class="tab active" data-panel="home">PC</button>
+  <button class="tab" data-panel="audio">Audio</button>
+  <button class="tab" data-panel="screen">Schermo</button>
+  <button class="tab" data-panel="apps">App</button>
+  <button class="tab" data-panel="touch">Touch</button>
+  <button class="tab" data-panel="terminal">Term</button>
+  <button class="tab" data-panel="custom">Mio</button>
+  <button class="tab" data-panel="info">Info</button>
+</nav>
+
+<div class="toast" id="toast"></div>
+<div class="confirm-overlay hidden" id="confirmOverlay">
+  <div class="confirm-box">
+    <p id="confirmText"></p>
+    <div class="row-2">
+      <button class="big-btn" id="confirmYes">Si, esegui</button>
+      <button class="ghost-btn" id="confirmNo">Annulla</button>
+    </div>
+  </div>
+</div>
+
+<script src="remote.js"></script>
+<script>
+if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(() => {}); }
+</script>
+</body>
+</html>

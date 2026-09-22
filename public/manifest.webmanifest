@@ -1,0 +1,15 @@
+{
+  "name": "NexaRemote",
+  "short_name": "NexaRemote",
+  "description": "Il telecomando del tuo PC, dal tuo telefono. Nexatech - Le app del futuro.",
+  "start_url": "/remote",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0d130f",
+  "theme_color": "#0d130f",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

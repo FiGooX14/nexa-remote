@@ -1,0 +1,18 @@
+{
+  "name": "nexa-remote",
+  "version": "0.1.0",
+  "description": "NexaRemote - telecomando per PC da telefono (Nexatech)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "express": "^4.18.2",
+    "express-session": "^1.17.3",
+    "socket.io": "^4.7.2"
+  },
+  "engines": {
+    "node": ">=18.11.0"
+  }
+}
