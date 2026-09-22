@@ -133,7 +133,7 @@ window.addEventListener('appinstalled', () => {
 
 $('btnRefresh').addEventListener('click', async () => {
   const { data } = await api('/api/status');
-  if (data.boot) { state.boot = data.boot; renderHost(); }
+  if (data.boot) { state.boot = data.boot; renderHost(); } else { renderOffline(); }
   toast('Aggiornato', true);
 });
 
@@ -142,17 +142,41 @@ function renderHost() {
   if (!b) return;
   const platformLabel = b.platform === 'darwin' ? 'macOS' : (b.platform === 'win32' ? 'Windows' : b.platform);
   $('hostInfo').textContent = (b.hostname || 'PC') + ' - ' + platformLabel;
+  $('bootDot').classList.remove('off');
   const lastBoot = new Date(b.bootAt);
   const noto = lastBoot.toLocaleString('it-IT', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
   $('bootBanner').textContent = 'Il PC e acceso dalla ultimo avvio (' + noto + '), da ' + fmtUptime(b.uptimeSeconds) + '.';
   $('bootBanner').classList.remove('hidden');
   $('infoGrid').innerHTML = '';
   const rows = [
+    ['Stato', 'Acceso'],
     ['Nome PC', b.hostname],
     ['Sistema', platformLabel],
     ['Memoria', b.totalMemGb + ' GB'],
     ['Porta', b.port],
     ['Acceso da', fmtUptime(b.uptimeSeconds)],
+    ['Il tuo dispositivo', state.user && state.user.os ? (state.user.os === 'mac' ? 'Mac' : 'Windows') : '']
+  ];
+  for (const [k, v] of rows) {
+    const d = document.createElement('div');
+    d.className = 'info-row';
+    d.innerHTML = '<span>' + esc(k) + '</span><strong>' + esc(String(v)) + '</strong>';
+    $('infoGrid').appendChild(d);
+  }
+}
+
+function renderOffline() {
+  $('bootDot').classList.add('off');
+  $('bootBanner').classList.add('hidden');
+  $('hostInfo').textContent = 'PC - Spento';
+  $('infoGrid').innerHTML = '';
+  const rows = [
+    ['Stato', 'Spento'],
+    ['Nome PC', '-'],
+    ['Sistema', '-'],
+    ['Memoria', '-'],
+    ['Porta', '-'],
+    ['Acceso da', 'Spento'],
     ['Il tuo dispositivo', state.user && state.user.os ? (state.user.os === 'mac' ? 'Mac' : 'Windows') : '']
   ];
   for (const [k, v] of rows) {
@@ -514,7 +538,7 @@ $('btnSaveButtons').addEventListener('click', async () => {
   if (!s.data.ok || !s.data.user) { location.href = '/'; return; }
   state.user = s.data.user;
   const st = await api('/api/status');
-  if (st.data.boot) { state.boot = st.data.boot; renderHost(); }
+  if (st.data.boot) { state.boot = st.data.boot; renderHost(); } else { renderOffline(); }
   loadApps();
   loadCustom();
   checkBrightness();
