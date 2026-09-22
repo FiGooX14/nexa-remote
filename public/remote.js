@@ -103,14 +103,8 @@ function isStandalone() {
     window.matchMedia('(display-mode: fullscreen)').matches;
   return mode || window.navigator.standalone === true;
 }
-function gotInstalledFlag() {
-  try { return localStorage.getItem('nexaremote-installed') === '1'; } catch (e) { return false; }
-}
-function setInstalledFlag() {
-  try { localStorage.setItem('nexaremote-installed', '1'); } catch (e) { }
-}
 function refreshInstallBtn() {
-  installBtn.hidden = isStandalone() || gotInstalledFlag();
+  installBtn.hidden = isStandalone();
 }
 refreshInstallBtn();
 window.addEventListener('beforeinstallprompt', (e) => {
@@ -122,11 +116,10 @@ installBtn.addEventListener('click', async () => {
   if (!state.deferredInstall) { toast('Non ancora disponibile, riprova tra poco', false); return; }
   state.deferredInstall.prompt();
   const choice = await state.deferredInstall.userChoice.catch(() => ({ outcome: 'dismissed' }));
-  if (choice.outcome === 'accepted') { setInstalledFlag(); refreshInstallBtn(); }
+  if (choice.outcome === 'accepted') refreshInstallBtn();
   state.deferredInstall = null;
 });
 window.addEventListener('appinstalled', () => {
-  setInstalledFlag();
   refreshInstallBtn();
   toast('NexaRemote installata! Trovane l icona nella home', true);
 });

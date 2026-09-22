@@ -1,4 +1,4 @@
-const CACHE_NAME = 'nexaremote-v7';
+const CACHE_NAME = 'nexaremote-v8';
 const ASSETS = [
   '/',
   '/remote',
