@@ -98,23 +98,36 @@ $('btnLogout').addEventListener('click', async () => {
 
 const installBtn = $('btnInstall');
 function isStandalone() {
-  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  const mode = window.matchMedia('(display-mode: standalone)').matches ||
+    window.matchMedia('(display-mode: minimal-ui)').matches ||
+    window.matchMedia('(display-mode: fullscreen)').matches;
+  return mode || window.navigator.standalone === true;
 }
-if (isStandalone()) installBtn.hidden = true;
+function gotInstalledFlag() {
+  try { return localStorage.getItem('nexaremote-installed') === '1'; } catch (e) { return false; }
+}
+function setInstalledFlag() {
+  try { localStorage.setItem('nexaremote-installed', '1'); } catch (e) { }
+}
+function refreshInstallBtn() {
+  installBtn.hidden = isStandalone() || gotInstalledFlag();
+}
+refreshInstallBtn();
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   state.deferredInstall = e;
-  installBtn.hidden = false;
+  refreshInstallBtn();
 });
 installBtn.addEventListener('click', async () => {
   if (!state.deferredInstall) { toast('Non ancora disponibile, riprova tra poco', false); return; }
   state.deferredInstall.prompt();
   const choice = await state.deferredInstall.userChoice.catch(() => ({ outcome: 'dismissed' }));
-  if (choice.outcome === 'accepted') installBtn.hidden = true;
+  if (choice.outcome === 'accepted') { setInstalledFlag(); refreshInstallBtn(); }
   state.deferredInstall = null;
 });
 window.addEventListener('appinstalled', () => {
-  installBtn.hidden = true;
+  setInstalledFlag();
+  refreshInstallBtn();
   toast('NexaRemote installata! Trovane l icona nella home', true);
 });
 
