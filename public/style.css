@@ -192,7 +192,11 @@ input[type=range] { width: 100%; accent-color: var(--accent-strong); }
   background: var(--card); border: 1px solid var(--border); border-radius: 10px;
   padding: 10px 12px; display: flex; align-items: center; justify-content: space-between; gap: 8px;
 }
-.app-item button { background: var(--danger); color: #2a0e08; padding: 8px 12px; border-radius: 8px; font-weight: 600; font-size: 13px; white-space: nowrap; }
+.app-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.app-act { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 8px; background: var(--bg); border: 1px solid var(--border); color: var(--dim); }
+.app-act.accent { color: var(--accent); border-color: var(--accent); }
+.app-act.danger { color: var(--danger); border-color: var(--danger); }
+.app-act .ic { width: 18px; height: 18px; }
 .app-name { font-size: 14px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .app-empty { color: var(--dim); font-size: 14px; padding: 8px 2px; }
 

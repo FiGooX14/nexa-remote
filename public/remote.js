@@ -384,14 +384,41 @@ async function loadApps() {
     const name = document.createElement('span');
     name.className = 'app-name';
     name.textContent = (app.title || app.name) + ' (' + app.id + ')';
-    const btn = document.createElement('button');
-    btn.textContent = 'Chiudi';
-    btn.addEventListener('click', () => confirmDialog('Chiudere "' + (app.title || app.name) + '"?', async () => {
+    const actions = document.createElement('div');
+    actions.className = 'app-actions';
+
+    const bMin = document.createElement('button');
+    bMin.className = 'app-act';
+    bMin.title = 'Riduci a icona';
+    bMin.innerHTML = '<svg class="ic"><use href="#i-min"/></svg>';
+    bMin.addEventListener('click', () => {
+      runAction('minimizeApp', { id: app.id });
+      setTimeout(loadApps, 800);
+    });
+    actions.appendChild(bMin);
+
+    const bMax = document.createElement('button');
+    bMax.className = 'app-act accent';
+    bMax.title = 'A schermo intero';
+    bMax.innerHTML = '<svg class="ic"><use href="#i-max"/></svg>';
+    bMax.addEventListener('click', () => {
+      runAction('maximizeApp', { id: app.id });
+      setTimeout(loadApps, 800);
+    });
+    actions.appendChild(bMax);
+
+    const bClose = document.createElement('button');
+    bClose.className = 'app-act danger';
+    bClose.title = 'Chiudi';
+    bClose.innerHTML = '<svg class="ic"><use href="#i-close"/></svg>';
+    bClose.addEventListener('click', () => confirmDialog('Chiudere "' + (app.title || app.name) + '"?', async () => {
       const res = await runAction('closeApp', { name: app.name });
       setTimeout(loadApps, 800);
     }));
+    actions.appendChild(bClose);
+
     li.appendChild(name);
-    li.appendChild(btn);
+    li.appendChild(actions);
     list.appendChild(li);
   }
 }
