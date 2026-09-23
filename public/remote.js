@@ -560,10 +560,18 @@ $('btnSaveButtons').addEventListener('click', async () => {
   toast(status === 200 ? 'Pulsanti salvati' : 'Errore salvataggio', status === 200);
 });
 
+$('btnWakeHelp').addEventListener('click', () => {
+  $('wakeOverlay').classList.remove('hidden');
+});
+$('wakeOk').addEventListener('click', () => {
+  $('wakeOverlay').classList.add('hidden');
+});
+
 (async () => {
   const s = await api('/api/session');
   if (!s.data.ok || !s.data.user) { location.href = '/'; return; }
   state.user = s.data.user;
+  $('btnWakeHelp').hidden = !(state.user && /lorenzomuollo2014@gmail\.com/i.test(state.user.email));
   const st = await api('/api/status');
   if (st.data.boot) { state.boot = st.data.boot; renderHost(); } else { renderOffline(); }
   loadApps();

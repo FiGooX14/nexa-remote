@@ -148,6 +148,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .tile-danger:hover { border-color: var(--danger); }
 .tile-warn { background: #2a2114; border-color: #6e5526; color: var(--warn); }
 .tile-warn:hover { border-color: var(--warn); }
+.tile-accendi { background: #14271a; border-color: #2e5c3a; color: var(--accent); }
+.tile-accendi:hover { border-color: var(--accent-strong); }
+.tile-accendi .ic { color: var(--accent); }
 .tile-spacer { grid-column: span 1; }
 
 .section-title { font-size: 13px; text-transform: uppercase; letter-spacing: 1px; color: var(--dim); margin-top: 6px; display: flex; align-items: center; gap: 7px; }
@@ -257,8 +260,13 @@ input[type=range] { width: 100%; accent-color: var(--accent-strong); }
   position: fixed; inset: 0; z-index: 80; background: rgba(6, 10, 7, 0.7);
   display: flex; align-items: center; justify-content: center; padding: 20px;
 }
-.confirm-box { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; width: 100%; max-width: 320px; }
+.confirm-box { background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; width: 100%; max-width: 340px; }
 .confirm-box p { font-size: 15px; margin-bottom: 16px; text-align: center; }
+.confirm-box .hint { margin-bottom: 14px; }
+.confirm-box .section-title { margin-bottom: 12px; justify-content: center; }
+.wake-steps { text-align: left; margin: 0 0 16px; }
+.wake-steps p { font-size: 14px; text-align: left; margin-bottom: 8px; }
+.wake-steps b { color: var(--accent); }
 
 @media (min-width: 700px) {
   .pad { height: 420px; }
