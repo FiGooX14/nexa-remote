@@ -78,6 +78,20 @@ Il codice scade dopo 5 minuti e si usa una volta sola. Il collegamento resta sal
 - Il terminale remoto blocca i comandi pericolosi (`format`, `diskpart`, `Reset-Computer`, ...). Puoi aggiungerne altri in `BLOCKED_TERMS` nel `.env`.
 - L'accesso ha un limite di 5 tentativi sbagliati ogni 15 minuti.
 
+## Per chi sviluppa: come si pubblica una nuova versione
+
+La pubblicazione su npm è **automatica** e non usa né token né codici: npm si fida di GitHub Actions
+(Trusted Publishing con OIDC), quindi non esiste nessun segreto da tenere al sicuro.
+
+Il file è `.github/workflows/publish.yml`. Per pubblicare:
+
+1. aggiorna la `version` in `package.json`;
+2. crea il tag con lo stesso numero (`git tag v0.1.2`);
+3. fai il push del tag (`git push origin v0.1.2`).
+
+GitHub Actions fa il resto e npm rende visibile la versione in pochi secondi.
+Il workflow controlla prima che la versione non sia già online e, se lo è, si ferma con un errore chiaro.
+
 ---
 
 (c) Nexatech — tutti i diritti riservati.

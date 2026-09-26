@@ -1,0 +1,53 @@
+# Pubblicazione automatica di NexaRemote su npm.
+# Non serve alcun token ne' alcun codice: npm si fida di GitHub Actions
+# (Trusted Publishing con OIDC) e il permesso vale solo per questo workflow.
+#
+# Come si usa (dopo aver attivato il Trusted Publisher su npmjs.com):
+#   1. aggiornare la versione in package.json
+#   2. git tag v0.1.2
+#   3. git push origin v0.1.2
+# e il pacchetto viene pubblicato da solo.
+
+name: Publish
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  id-token: write   # obbligatorio: e' questo che permette a npm di fidarsi
+  contents: read
+
+jobs:
+  publish:
+    name: Pubblica su npm
+    runs-on: ubuntu-latest
+    steps:
+      - name: Prendi il codice
+        uses: actions/checkout@v6
+
+      - name: Prepara Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
+          package-manager-cache: false
+
+      - name: Installa le dipendenze
+        run: npm ci
+
+      - name: Controlla che la versione non sia gia' online
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "Versione da pubblicare: $VERSION"
+          if npm view "@nexa-tech/nexa-remote@$VERSION" version >/dev/null 2>&1; then
+            echo "La versione $VERSION e' gia' su npm: aumento la versione in package.json e riprovo."
+            exit 1
+          fi
+
+      - name: Pubblica
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ''
