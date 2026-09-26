@@ -26,7 +26,6 @@
   <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="3" y1="12" x2="21" y2="12"/><path d="M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18z"/></symbol>
   <symbol id="i-check" viewBox="0 0 24 24"><polyline points="4 12 10 18 20 6"/></symbol>
   <symbol id="i-close" viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></symbol>
-  <symbol id="i-wifi" viewBox="0 0 24 24"><path d="M5 12.5a10 10 0 0 1 14 0"/><path d="M8.5 16a5 5 0 0 1 7 0"/><line x1="12" y1="20" x2="12" y2="20"/></symbol>
   <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M17.5 19a4.5 4.5 0 0 0 .5-8.97A6 6 0 0 0 6.1 11.2A3.9 3.9 0 0 0 6.5 19z"/></symbol>
 </svg>
 
@@ -121,16 +120,11 @@
 </div>
 
 <script src="/device.js"></script>
-<script src="/discovery.js"></script>
 <script>
 const $ = (id) => document.getElementById(id);
 const tabs = { login: $('tabLogin'), register: $('tabRegister') };
 const sec = { login: $('authSectionLogin'), register: $('authSectionRegister') };
 const status = $('authStatus');
-
-let pcForced = false;
-
-function setPcVisible() { /* la ricerca Wi-Fi e stata tolta: non c'e piu nulla da mostrare */ }
 
 function setTab(which) {
   tabs.login.classList.toggle('active', which === 'login');
