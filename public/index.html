@@ -26,6 +26,8 @@
   <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="3" y1="12" x2="21" y2="12"/><path d="M12 3a15 15 0 0 1 0 18 15 15 0 0 1 0-18z"/></symbol>
   <symbol id="i-check" viewBox="0 0 24 24"><polyline points="4 12 10 18 20 6"/></symbol>
   <symbol id="i-close" viewBox="0 0 24 24"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></symbol>
+  <symbol id="i-wifi" viewBox="0 0 24 24"><path d="M5 12.5a10 10 0 0 1 14 0"/><path d="M8.5 16a5 5 0 0 1 7 0"/><line x1="12" y1="20" x2="12" y2="20"/></symbol>
+  <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M17.5 19a4.5 4.5 0 0 0 .5-8.97A6 6 0 0 0 6.1 11.2A3.9 3.9 0 0 0 6.5 19z"/></symbol>
 </svg>
 
 <div class="auth-box">
@@ -35,6 +37,7 @@
   <h1>NexaRemote</h1>
   <p class="auth-sub">Nexatech &middot; Le app del futuro</p>
   <p class="auth-tag">Il telecomando del tuo PC, dal tuo telefono.</p>
+
 
   <div class="auth-tabs">
     <button class="auth-tab active" id="tabLogin">Accedi</button>
@@ -55,6 +58,7 @@
         <input type="password" id="loginPassword" required placeholder="Password">
       </div>
       <button type="submit" class="btn-primary">Entra</button>
+      <a href="#" class="tutorial-link" id="pcFindLink">Non trovi il tuo PC?</a>
     </form>
   </div>
 
@@ -101,11 +105,32 @@
   </div>
 </div>
 
+<div class="guide-overlay hidden" id="guideOverlay">
+  <div class="guide-box">
+    <button class="tutorial-close" id="guideClose" aria-label="Chiudi"><svg class="ic"><use href="#i-close"/></svg></button>
+    <div class="guide-head">
+      <div class="guide-num" id="guideNum">1</div>
+      <div class="guide-headtxt">
+        <div class="guide-title" id="guideTitle">Cerco il tuo PC</div>
+        <div class="guide-sub" id="guideSub">Ti serve solo il computer acceso con NexaRemote avviato.</div>
+      </div>
+    </div>
+    <div class="guide-body" id="guideBody"></div>
+    <div class="guide-actions" id="guideActions"></div>
+  </div>
+</div>
+
+<script src="/device.js"></script>
+<script src="/discovery.js"></script>
 <script>
 const $ = (id) => document.getElementById(id);
 const tabs = { login: $('tabLogin'), register: $('tabRegister') };
 const sec = { login: $('authSectionLogin'), register: $('authSectionRegister') };
 const status = $('authStatus');
+
+let pcForced = false;
+
+function setPcVisible() { /* la ricerca Wi-Fi e stata tolta: non c'e piu nulla da mostrare */ }
 
 function setTab(which) {
   tabs.login.classList.toggle('active', which === 'login');
@@ -117,6 +142,8 @@ function setTab(which) {
 
 tabs.login.addEventListener('click', () => setTab('login'));
 tabs.register.addEventListener('click', () => setTab('register'));
+const pcFindLink = $('pcFindLink');
+if (pcFindLink) pcFindLink.addEventListener('click', (e) => { e.preventDefault(); askCode(); });
 
 const osOptions = document.querySelectorAll('.os-option');
 let chosenOs = 'windows';
@@ -130,10 +157,12 @@ const TUTORIALS = {
       'Installa Node.js: scarica l\'ultima versione LTS dal sito ufficiale nodejs.org e installala (continua sempre su "Avanti").',
       'Apri un terminale (cmd o PowerShell) nella cartella del progetto e scrivi: npm install  (serve solo la prima volta).',
       'Avvia NexaRemote con un doppio click su "Avvia-NexaRemote.bat" (oppure da terminale: node server.js). Tieni la finestra aperta.',
-      'Collega il telefono alla stessa rete Wi-Fi del PC (o usa Tailscale se vuoi usarlo anche fuori casa).',
-      'Trovare l\'indirizzo: nella finestra del server c\'è scritto un IP del tipo http://192.168.x.x:3002.',
-      'Da questo telefono apri il browser (Chrome o Safari) e scrivi quell\'indirizzo.',
-      'Registrati con nome, email e password, poi prova un comando (es. volume o "Avvia live"): il PC deve rispondere.'
+      'Sul computer apri la pagina del codice: nel browser scrivi l indirizzo del PC che hai aperto (finisce con /pc).',
+      'Sul telefono apri lo stesso indirizzo e crea il tuo account: ti compare subito un codice di 6 cifre.',
+      'Torna sul computer, scrivi il codice e premi "Continua": quando ti chiede "Sei sicuro di voler connettere?" scegli CONFERMA.',
+      'Prova un comando (es. volume o "Avvia live"): il PC deve rispondere.',
+      'Ora puoi installare l app: dal menu del browser scegli "Installa app" (su Android) oppure Condividi > "Aggiungi alla Home" (su iPhone).',
+      'Il collegamento resta salvato: le volte dopo l app apre direttamente il telecomando, dentro e fuori casa.'
     ]
   },
   mac: {
@@ -145,10 +174,11 @@ const TUTORIALS = {
       'Apri l\'app "Terminale" (cercala con Spotlight), vai nella cartella del progetto e scrivi: npm install  (serve solo la prima volta).',
       'Avvia il server con il comando: node server.js  (tieni il Terminale aperto).',
       'Da Preferenze di Sistema apri "Privacy e sicurezza" e spunta il Terminale in "Accessibilità" e "Registrazione dello schermo" (così funzionano tastiera, volume, screenshot e live).',
-      'Collega il telefono alla stessa rete Wi-Fi del Mac (o usa Tailscale se vuoi usarlo anche fuori casa).',
-      'Trovare l\'indirizzo: nella finestra del server c\'è scritto un IP del tipo http://192.168.x.x:3002.',
-      'Da questo telefono apri il browser e scrivi quell\'indirizzo.',
-      'Registrati con nome, email e password, poi prova un comando (es. volume o "Avvia live"): il Mac deve rispondere. Per il touchpad serve installare cliclick sul Mac (comando: brew install cliclick).'
+      'Sul computer apri la pagina del codice: nel browser scrivi l indirizzo del Mac che hai aperto (finisce con /pc).',
+      'Sul telefono apri lo stesso indirizzo e crea il tuo account: ti compare subito un codice di 6 cifre.',
+      'Torna sul computer, scrivi il codice e premi "Continua": quando ti chiede "Sei sicuro di voler connettere?" scegli CONFERMA.',
+      'Prova un comando (es. volume o "Avvia live"): il Mac deve rispondere. Per il touchpad serve installare cliclick sul Mac (comando: brew install cliclick).',
+      'Ora puoi installare l app: dal menu del browser scegli "Aggiungi alla Home" (iPhone) oppure "Installa app" (Android).'
     ]
   }
 };
@@ -199,6 +229,242 @@ $('tutorialLink').addEventListener('click', (e) => {
   showTutorial(chosenOs);
 });
 
+let guideStarted = false;
+// nome dell'utente collegato: serve per mostrare sul PC "chi chiede di collegarsi"
+let userName = '';
+try { userName = localStorage.getItem('nexa.userName') || ''; } catch (e) {}
+// indirizzo pubblico del PC (Nexatech): la pagina del codice si apre sempre li,
+// cosi funziona sia a casa sia fuori e senza sbagliare indirizzo
+let PUBLIC_URL = '';
+
+
+
+// Dopo la registrazione l app ti guida passo passo a collegare il PC.
+const guide = {
+  overlay: $('guideOverlay'),
+  num: $('guideNum'),
+  title: $('guideTitle'),
+  sub: $('guideSub'),
+  body: $('guideBody'),
+  actions: $('guideActions'),
+  closed: false,
+  found: false
+};
+
+function guideShow() { guide.overlay.classList.remove('hidden'); }
+function guideHide() { guide.overlay.classList.add('hidden'); guide.closed = true; }
+$('guideClose').addEventListener('click', () => location.replace('/remote'));
+
+function guideBtn(label, primary, onClick) {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'guide-btn' + (primary ? ' primary' : '');
+  b.textContent = label;
+  b.addEventListener('click', onClick);
+  return b;
+}
+
+function guideHint(text) {
+  const p = document.createElement('p');
+  p.className = 'guide-hint';
+  p.textContent = text;
+  return p;
+}
+
+// Computer scelto nella lista: passo 2. Ora spieghiamo cosa fare sul PC e poi
+// diamo il codice (richiesto da Lorenzo: selezione PRIMA delle istruzioni).
+
+// Errore: il computer scelto e gia collegato all'account di un altro.
+function guideOwnerError() {
+  guide.num.textContent = '!';
+  guide.title.textContent = 'PC gia connesso a un account';
+  guide.sub.textContent = 'Questo computer e gia registrato su un altro account, quindi non puoi comandarlo.';
+  guide.body.innerHTML = '';
+  guide.body.appendChild(guideHint('Ogni computer appartiene a un solo account. Se il computer e tuo, accedi con l account con cui lo hai registrato.'));
+  guide.actions.innerHTML = '';
+  guide.actions.appendChild(guideBtn('Accedi con un altro account', true, async () => {
+    try { await fetch('/api/logout', { method: 'POST', headers: NxaDevice.headers() }); } catch (e) {}
+    location.replace('/');
+  }));
+  guide.actions.appendChild(guideBtn('Non ora', false, () => location.replace('/')));
+}
+
+
+// Ricerca vera, fatta dal TELEFONO sulla sua stessa rete: il server dice
+// quale rete guardare (quella del PC) e il telefono la cerca da solo. Cosi
+// sui dati mobili non trova niente, come deve essere.
+
+
+
+
+// Dopo la registrazione parte subito il codice: il telefono lo mostra, sul PC
+// lo si digita nella pagina /pc e il PC chiede la conferma.
+async function startGuide() {
+  if (guideStarted) return;
+  guideStarted = true;
+  await askCode();
+}
+
+// Passo 2: cosa fare sul computer (aprire la pagina col codice e lasciarla
+// aperta). Viene prima della ricerca, cosi l'utente sa dove guardare.
+
+// Schermata di inserimento del codice (usata anche se il PC risponde che il
+// Metodo principale: il codice nasce sul TELEFONO e si digita sul PC.
+// Il telefono aspetta (controlla ogni 2 secondi) che il PC lo confermi.
+async function askCode() {
+  guideStarted = true;
+  guideShow();
+  guide.num.textContent = '1';
+  guide.title.textContent = 'Il tuo codice';
+  guide.sub.textContent = 'Digita questo codice sul computer, nella pagina del codice. Poi aspetta: si collega da solo.';
+  await loadPublicUrl();
+  guide.body.innerHTML = '';
+  const box = document.createElement('div');
+  box.className = 'codebig';
+  box.id = 'phoneCode';
+  box.textContent = '------';
+  const state1 = document.createElement('div');
+  state1.className = 'codetime';
+  state1.id = 'phoneCodeState';
+  state1.textContent = 'Sto generando il codice...';
+  const err = document.createElement('div');
+  err.className = 'guide-err';
+  const link = document.createElement('a');
+  link.className = 'guide-link';
+  link.href = pcPageUrl();
+  link.target = '_blank';
+  link.textContent = 'Apri la pagina del codice sul PC';
+  const again = document.createElement('div');
+  again.style.marginTop = '10px';
+  again.appendChild(guideBtn('Genera un codice nuovo', false, () => askCode()));
+  const alt = document.createElement('div');
+  alt.style.marginTop = '6px';
+  const altLink = document.createElement('a');
+  altLink.className = 'guide-link';
+  altLink.href = '#';
+  altLink.textContent = 'Il codice e sul PC? Inseriscilo io da qui';
+  altLink.addEventListener('click', (e) => { e.preventDefault(); askCodeFromPc(); });
+  alt.appendChild(altLink);
+  guide.body.appendChild(box);
+  guide.body.appendChild(state1);
+  guide.body.appendChild(err);
+  guide.body.appendChild(link);
+  guide.body.appendChild(again);
+  guide.body.appendChild(alt);
+  guide.actions.innerHTML = '';
+
+  let code = '';
+  try {
+    const r = await fetch('/api/pair/request', {
+      method: 'POST',
+      headers: Object.assign({ 'Content-Type': 'application/json' }, NxaDevice.headers()),
+      body: JSON.stringify({ nome: userName || 'Telefono' })
+    });
+    const d = await r.json().catch(() => ({}));
+    if (!d || !d.code) { state1.textContent = d.error || 'non riesco a generare il codice'; return; }
+    code = d.code;
+    box.textContent = code;
+  } catch (e) {
+    state1.textContent = 'PC non raggiungibile: controlla la connessione.';
+    return;
+  }
+  if (guide.closed) return;
+  state1.textContent = 'In attesa sul computer...';
+  // controlla ogni 2 secondi se il PC ha confermato
+  const deadline = Date.now() + 5 * 60 * 1000;
+  while (Date.now() < deadline && !guide.closed) {
+    await new Promise((r) => setTimeout(r, 2000));
+    if (guide.closed) return;
+    try {
+      const r = await fetch('/api/pair/pending?device=' + encodeURIComponent(NxaDevice.id()));
+      const d = await r.json().catch(() => ({}));
+      if (d && d.confirmed) { guidePaired(); return; }
+    } catch (e) {}
+  }
+  if (guide.closed) return;
+  state1.textContent = 'Il codice e scaduto: premi "Genera un codice nuovo".';
+  again.querySelector('button').classList.add('primary');
+}
+
+// Metodo alternativo: il codice e mostrato sul PC e lo digiti qui.
+async function askCodeFromPc() {
+  guideStarted = true;
+  guideShow();
+  guide.num.textContent = '2';
+  guide.title.textContent = 'Inserisci il codice sul computer';
+  guide.sub.textContent = 'Il codice di 6 cifre che appare sul computer. Chi non lo inserisce non puo comandare il PC.';
+  guide.body.innerHTML = '';
+  const box = document.createElement('div');
+  box.className = 'code-in';
+  const inp = document.createElement('input');
+  inp.type = 'text';
+  inp.inputMode = 'numeric';
+  inp.maxLength = 6;
+  inp.placeholder = '000000';
+  inp.autocomplete = 'off';
+  const go = document.createElement('button');
+  go.textContent = 'Collega';
+  const err = document.createElement('div');
+  err.className = 'guide-err';
+  const skip = document.createElement('div');
+  skip.style.marginTop = '10px';
+  skip.appendChild(guideBtn('Non ora', false, () => location.replace('/')));
+  box.appendChild(inp);
+  box.appendChild(go);
+  guide.body.appendChild(box);
+  guide.body.appendChild(err);
+  guide.body.appendChild(skip);
+  guide.actions.innerHTML = '';
+  inp.focus();
+
+  // Se sei il proprietario e stai usando questo PC, puoi abbinare con un click.
+  try {
+    const r = await fetch('/api/pair/devices', { headers: NxaDevice.headers() });
+    const d = await r.json().catch(() => ({}));
+    if (d && d.isOwner) {
+      const own = guideBtn('Sei sul PC? Abina questo computer', false, async () => {
+        const rr = await fetch('/api/pair/self', { method: 'POST', headers: NxaDevice.headers() });
+        const dd = await rr.json().catch(() => ({}));
+        if (dd && dd.ok) guidePaired();
+        else err.textContent = dd.error || 'non posso abbinare';
+      });
+      own.style.marginTop = '10px';
+      guide.body.appendChild(own);
+    }
+  } catch (e) {}
+
+  const send = async () => {
+    const code = inp.value.replace(/\D/g, '');
+    if (code.length !== 6) { err.textContent = 'Il codice ha 6 cifre.'; return; }
+    go.disabled = true;
+    err.textContent = '';
+    const r = await fetch('/api/pair', {
+      method: 'POST',
+      headers: Object.assign({ 'Content-Type': 'application/json' }, NxaDevice.headers()),
+      body: JSON.stringify({ code: code })
+    });
+    const d = await r.json().catch(() => ({}));
+    if (r.ok && d.ok) { guidePaired(); return; }
+    go.disabled = false;
+    err.textContent = d.error || 'Codice non valido';
+  };
+  go.addEventListener('click', send);
+  inp.addEventListener('keydown', (e) => { if (e.key === 'Enter') send(); });
+}
+
+function guidePaired() {
+  guide.num.textContent = '3';
+  guide.title.textContent = 'Telefono collegato';
+  guide.sub.textContent = 'Questo dispositivo e abbinato al PC: da ora puoi comandarlo anche quando non sei in casa.';
+  guide.body.innerHTML = '';
+  guide.body.appendChild(guideHint('Per togliere questo telefono, il proprietario del PC puo rimuoverlo dalla pagina col codice.'));
+  guide.actions.innerHTML = '';
+  guide.actions.appendChild(guideBtn('Apri il telecomando', true, () => location.replace('/remote')));
+}
+
+// Apertura dall indirizzo pubblico (https): il browser non permette di cercare
+// i computer della rete locale, quindi lo dice e lascia usare il collegamento
+// gia attivo.
 const formLogin = $('formLogin');
 const formRegister = $('formRegister');
 
@@ -207,32 +473,84 @@ function showMsg(msg, ok) {
   status.classList.toggle('warn', !ok);
 }
 
+// ricorda il nome dell'utente collegato (per la richiesta di collegamento)
+function rememberUser(u) {
+  if (!u || !u.nome) return;
+  userName = u.nome;
+  try { localStorage.setItem('nexa.userName', u.nome); } catch (e) {}
+}
+
+// indirizzo pubblico del PC (lo chiede al server e lo ricorda)
+async function loadPublicUrl() {
+  if (PUBLIC_URL) return PUBLIC_URL;
+  try {
+    const r = await fetch('/api/status');
+    const d = await r.json().catch(() => ({}));
+    if (d && d.device && d.device.publicUrl) PUBLIC_URL = d.device.publicUrl;
+  } catch (e) {}
+  return PUBLIC_URL;
+}
+
+// link alla pagina del codice da aprire sul PC
+function pcPageUrl() {
+  return PUBLIC_URL ? PUBLIC_URL + '/pc' : '/pc';
+}
+
 async function post(url, body) {
   try {
-    const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    const r = await fetch(url, { method: 'POST', headers: Object.assign({ 'Content-Type': 'application/json' }, NxaDevice.headers()), body: JSON.stringify(body) });
     return { status: r.status, data: await r.json().catch(() => ({})) };
   } catch (e) {
     return { status: 0, data: { error: 'PC non raggiungibile. Attiva Tailscale sul telefono oppure apri l\'indirizzo giusto (http://IP-del-PC:3002 da casa).' } };
   }
 }
 
+// Dopo aver fatto accesso: se questo PC ha gia un altro proprietario si ferma,
+// se il dispositivo e abbinato col codice si va al telecomando, altrimenti si
+// chiede il codice.
+async function afterAuth() {
+  try {
+    const r = await fetch('/api/pair/devices', { headers: NxaDevice.headers() });
+    const d = await r.json().catch(() => ({}));
+    if (d && d.ok) {
+      if (d.hasOwner && !d.isOwner) { guideOwnerError(); return; }
+      if (d.trusted) { location.replace('/remote'); return; }
+    }
+  } catch (e) {}
+  // telefono non ancora abbinato: parte dalla ricerca del PC (come richiesto)
+  askCode();
+}
+
 formLogin.addEventListener('submit', async (e) => {
   e.preventDefault();
   const { status: st, data } = await post('/api/login', { email: $('loginEmail').value.trim(), password: $('loginPassword').value });
-  if (st === 200) { location.href = '/remote'; } else { showMsg(data.error || 'Errore di accesso', false); }
+  if (st === 200) { rememberUser(data.user); await afterAuth(); } else { showMsg(data.error || 'Errore di accesso', false); }
 });
 
 formRegister.addEventListener('submit', async (e) => {
   e.preventDefault();
   const osEl = document.querySelector('input[name="os"]:checked');
   const { status: st, data } = await post('/api/register', { nome: $('regNome').value.trim(), email: $('regEmail').value.trim(), password: $('regPassword').value, os: chosenOs || (osEl ? osEl.value : 'windows') });
-  if (st === 200) { location.href = '/remote'; } else { showMsg(data.error || 'Errore di registrazione', false); }
+  if (st === 200) { rememberUser(data.user); startGuide(); } else { showMsg(data.error || 'Errore di registrazione', false); }
 });
 
 (async () => {
+  const flag = (function () { try { return sessionStorage.getItem('nexa.needCode') === '1' ? 'code' : (sessionStorage.getItem('nexa.notOwner') === '1' ? 'owner' : ''); } catch (e) { return ''; } })();
+  try { sessionStorage.removeItem('nexa.needCode'); sessionStorage.removeItem('nexa.notOwner'); } catch (e) {}
+  if (flag === 'owner') { guideOwnerError(); return; }
   const r = await fetch('/api/session');
   const d = await r.json();
-  if (d.ok && d.user) location.href = '/remote';
+  if (d.ok && d.user) {
+    rememberUser(d.user);
+    if (flag === 'code') { askCode(); return; }
+    try {
+      const pr = await fetch('/api/pair/devices', { headers: NxaDevice.headers() });
+      const pd = await pr.json().catch(() => ({}));
+      if (pd && pd.ok && pd.hasOwner && !pd.isOwner) { guideOwnerError(); return; }
+      if (pd && pd.ok && pd.trusted) { location.href = '/remote'; return; }
+    } catch (e) {}
+    askCode();
+  }
 })();
 if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js').catch(() => {}); }
 </script>

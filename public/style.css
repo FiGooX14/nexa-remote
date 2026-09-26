@@ -302,3 +302,135 @@ input[type=range] { width: 100%; accent-color: var(--accent-strong); }
 .tutorial-box ol { margin-left: 0; list-style: none; counter-reset: step; }
 .tutorial-box li { position: relative; padding-left: 34px; }
 .tutorial-box li::before { counter-increment: step; content: counter(step); position: absolute; left: 0; top: 1px; width: 24px; height: 24px; border-radius: 8px; background: #223024; border: 1px solid var(--accent-strong); color: var(--accent); font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+
+/* === il tuo PC: ricerca sulla Wi-Fi === */
+.pcfind { background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 18px; text-align: left; }
+.pcfind-top { display: flex; align-items: center; gap: 10px; }
+.pcfind-ic { color: var(--accent); }
+.pcfind-txt { min-width: 0; }
+.pcfind-title { font-size: 15px; font-weight: 600; }
+.pcfind-sub { font-size: 12px; color: var(--dim); margin-top: 2px; }
+  .pcfind-list { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+  .pcfind-list:empty { display: none; }
+  .netothers { margin-top: 12px; }
+  .netothers-head { width: 100%; text-align: left; background: #141c16; border: 1px solid var(--border); border-radius: 10px; color: #9fb3a6; font-size: 13px; padding: 9px 10px; cursor: pointer; }
+  .netothers-list { margin-top: 8px; }
+  .netothers-list .pcrow { opacity: .72; }
+.pcrow { display: flex; align-items: center; gap: 10px; background: #141c16; border: 1px solid var(--border); border-radius: 10px; padding: 9px 10px; }
+.pcrow.current { border-color: var(--accent-strong); }
+.pcrow-txt { min-width: 0; flex: 1; }
+.pcrow-name { font-size: 14px; font-weight: 600; }
+.pcrow.current .pcrow-name { color: var(--accent); }
+.pcrow-meta { font-size: 11px; color: var(--dim); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pcrow-go { background: var(--accent-strong); color: #0b2310; font-weight: 700; font-size: 13px; padding: 8px 14px; border-radius: 8px; flex-shrink: 0; }
+.pcrow-go:hover { background: #66bd7c; }
+.pcfind-btns { display: flex; gap: 8px; margin-top: 10px; }
+.pcfind-btn { flex: 1; display: flex; align-items: center; justify-content: center; gap: 7px; background: #1c2a1e; border: 1px solid var(--accent-strong); color: var(--accent); font-size: 13px; font-weight: 600; padding: 10px; border-radius: 9px; }
+.pcfind-btn:hover { background: #24361f; }
+.pcfind-btn .ic { width: 18px; height: 18px; }
+.pcfind-btn.busy { color: var(--dim); border-color: var(--border); }
+.pcfind-btn.alt { flex: 0 0 auto; color: var(--dim); border-color: var(--border); }
+.pcfind-btn.alt:hover { color: var(--text); }
+.pcfind-manual { margin-top: 10px; }
+.pcfind-manual input { width: 100%; padding-left: 42px; }
+.pcfind-go { margin-top: 8px; padding: 11px; font-size: 14px; }.info-action { background: #1c2a1e; border: 1px solid var(--accent-strong); color: var(--accent); font-size: 13px; font-weight: 600; padding: 9px 14px; border-radius: 9px; }
+.info-action:hover { background: #24361f; }.pcrow.off { opacity: 0.65; border-color: #3a2f2f; }
+.pcrow.off .pcrow-go { background: #2a2320; color: var(--dim); border: 1px solid var(--border); }.pcrow-btns { display: flex; gap: 6px; flex-shrink: 0; }
+.pcrow-go.always { background: #22301f; color: var(--accent); border: 1px solid var(--accent-strong); }
+.pcrow-go.always:hover { background: #2b3d26; }
+/* === guida al collegamento (dopo la registrazione) === */
+.guide-overlay { position: fixed; inset: 0; background: rgba(6, 10, 7, 0.92); display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 60; overflow-y: auto; }
+.guide-box { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 18px; width: 100%; max-width: 420px; }
+.guide-head { display: flex; gap: 12px; align-items: flex-start; }
+.guide-num { width: 30px; height: 30px; flex-shrink: 0; border-radius: 9px; background: #223024; border: 1px solid var(--accent-strong); color: var(--accent); font-size: 15px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.guide-headtxt { min-width: 0; }
+.guide-title { font-size: 17px; font-weight: 600; }
+.guide-sub { font-size: 13px; color: var(--dim); margin-top: 3px; }
+.guide-body { margin-top: 14px; }
+  .guide-hint { font-size: 13px; color: var(--dim); line-height: 1.5; margin: 0 0 10px; white-space: pre-line; }
+.guide-body .pcfind-manual { margin-top: 12px; }
+.guide-actions { display: flex; gap: 8px; margin-top: 16px; }
+.guide-btn { flex: 1; background: var(--bg); border: 1px solid var(--border); color: var(--text); font-size: 14px; font-weight: 600; padding: 12px; border-radius: 10px; }
+.guide-btn:hover { border-color: var(--accent-strong); color: var(--accent); }
+.guide-btn.primary { background: var(--accent-strong); border-color: var(--accent-strong); color: #0b2310; }
+.guide-btn.primary:hover { background: #66bd7c; color: #0b2310; }
+/* === pagina del PC con il codice di abbinamento (/pc) === */
+body.pcpage { background: var(--bg); color: var(--text); font-family: inherit; margin: 0; padding: 24px 16px; }
+.pcbox { max-width: 520px; margin: 0 auto; background: var(--panel); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; }
+.pcbox-head { display: flex; gap: 12px; align-items: center; }
+.pcbox-logo { width: 46px; height: 46px; }
+.pcbox-title { font-size: 18px; font-weight: 700; }
+.pcbox-sub { font-size: 13px; color: var(--dim); margin-top: 2px; }
+.pcbox-sub2 { font-size: 13px; font-weight: 700; color: var(--dim); text-transform: uppercase; letter-spacing: .04em; margin: 20px 0 8px; }
+.pcbox-p { font-size: 14px; line-height: 1.5; color: var(--text); margin: 14px 0 10px; }
+.pcbox-hint { font-size: 12px; color: var(--dim); line-height: 1.5; margin: 8px 0 0; }
+.pcbox-actions { display: flex; gap: 8px; margin-top: 12px; }
+.pcbtn { flex: 1; text-align: center; background: var(--card); border: 1px solid var(--border); color: var(--text); font-size: 14px; font-weight: 600; padding: 12px; border-radius: 10px; cursor: pointer; }
+.pcbtn:hover { border-color: var(--accent-strong); color: var(--accent); }
+.pcbtn.primary { background: var(--accent-strong); border-color: var(--accent-strong); color: #0b2310; }
+.pcbtn.primary:hover { background: #66bd7c; color: #0b2310; }
+.codebig { margin-top: 16px; text-align: center; font-size: 46px; font-weight: 800; letter-spacing: .16em; color: var(--accent); background: var(--bg); border: 1px solid var(--border); border-radius: 12px; padding: 16px 8px 16px 20px; }
+.codetime { text-align: center; font-size: 12px; color: var(--dim); margin-top: 8px; }
+.pclinks { display: flex; flex-direction: column; gap: 8px; }
+.pclink { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; display: flex; flex-direction: column; gap: 2px; }
+.pclink span { font-size: 11px; color: var(--dim); text-transform: uppercase; letter-spacing: .04em; }
+.pclink b { font-size: 14px; color: var(--accent); font-weight: 600; word-break: break-all; }
+.devlist { display: flex; flex-direction: column; gap: 8px; font-size: 13px; color: var(--dim); }
+.devrow { background: var(--bg); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; display: flex; gap: 10px; align-items: center; }
+.devrow > div { flex: 1; min-width: 0; }
+.devname { font-size: 14px; color: var(--text); font-weight: 600; }
+.devmeta { font-size: 11px; color: var(--dim); margin-top: 2px; word-break: break-all; }
+.devdel { background: transparent; border: 1px solid var(--border); color: var(--danger); font-size: 12px; font-weight: 600; padding: 7px 10px; border-radius: 8px; cursor: pointer; }
+.devdel:hover { border-color: var(--danger); }
+
+/* === campo per il codice di abbinamento (schermata guidata) === */
+.code-in { display: flex; gap: 8px; margin-top: 10px; }
+.code-in input { flex: 1; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 10px; padding: 13px 14px; font-size: 20px; letter-spacing: .3em; text-align: center; font-family: inherit; }
+.code-in input:focus { border-color: var(--accent-strong); }
+.code-in button { background: var(--accent-strong); border: 1px solid var(--accent-strong); color: #0b2310; font-size: 14px; font-weight: 700; padding: 0 16px; border-radius: 10px; cursor: pointer; }
+.code-in button:disabled { opacity: .6; }
+.guide-err { font-size: 13px; color: var(--danger); margin-top: 8px; }
+.guide-ok { font-size: 13px; color: var(--accent); margin-top: 8px; }
+.guide-link { display: inline-block; font-size: 13px; color: var(--accent); margin-top: 10px; }
+/* === elenco istruzioni nella guida === */
+.guide-steps { margin: 12px 0 0; padding-left: 20px; font-size: 14px; line-height: 1.55; color: var(--text); }
+.guide-steps li { margin-bottom: 8px; }
+/* --- pagina del PC: finestra "sei sicuro di voler connettere?" --- */
+.pc-ask {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 60;
+}
+.pc-ask[hidden] { display: none; }
+.pc-ask-in {
+  background: var(--card, #16211b);
+  border: 1px solid var(--line, #2a3a31);
+  border-radius: 14px;
+  padding: 22px 20px;
+  max-width: 360px;
+  width: 100%;
+  text-align: center;
+}
+.pc-ask-t { font-size: 17px; font-weight: 600; color: var(--text, #e8f1ea); }
+.pc-ask-d { margin-top: 10px; font-size: 15px; color: var(--accent, #8fd694); word-break: break-word; }
+.pc-ask-b { margin-top: 20px; display: flex; gap: 10px; justify-content: center; }
+.pc-ask-b .pcbtn { flex: 1; }
+#ownerArea { margin-top: 6px; }
+
+/* --- inizio collegamento col codice (pagina di accesso) --- */
+.pair-start {
+  margin: 16px auto 0;
+  max-width: 420px;
+  padding: 14px 16px;
+  border: 1px solid var(--line, #2a3a31);
+  border-radius: 12px;
+  text-align: center;
+}
+.pair-start-t { font-size: 14px; color: var(--text, #dfe9e2); }
+.pair-start .pcbtn { margin-top: 10px; }
+.pair-start-h { margin-top: 10px; font-size: 12px; color: var(--muted, #8fa396); }

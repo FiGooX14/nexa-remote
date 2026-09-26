@@ -1,9 +1,13 @@
-const CACHE_NAME = 'nexaremote-v13';
+const CACHE_NAME = 'nexaremote-v37';
 const ASSETS = [
   '/',
   '/remote',
+  '/pc',
   '/style.css',
   '/remote.js',
+  '/pc.js',
+  '/device.js',
+  '/discovery.js',
   '/manifest.webmanifest',
   '/icons/icon-192.png',
   '/icons/icon-512.png'

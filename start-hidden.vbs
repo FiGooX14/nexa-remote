@@ -1,3 +1,4 @@
 Set sh = CreateObject("WScript.Shell")
-sh.CurrentDirectory = "E:\Nexatech\nexa-remote"
-sh.Run "node.exe server.js", 0, False
+' Avvia NexaRemote col comando globale npm (nessuna cartella del progetto).
+' I dati stanno in %USERPROFILE%\.nexaremote
+sh.Run "cmd /c %APPDATA%\npm\nexaremote.cmd --no-browser", 0, False

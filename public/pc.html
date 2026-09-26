@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NexaRemote PC - codice di abbinamento</title>
+<link rel="icon" href="/logo.svg">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body class="pcpage">
+
+<main class="pcbox">
+  <div class="pcbox-head">
+    <img src="/logo.svg" alt="NexaRemote" class="pcbox-logo">
+    <div>
+      <div class="pcbox-title">NexaRemote sul PC</div>
+      <div class="pcbox-sub">Collega il telefono a questo computer</div>
+    </div>
+  </div>
+
+  <section id="needAuth" class="hidden">
+    <p class="pcbox-p">Accedi con l'account del proprietario del PC per vedere il codice.</p>
+    <a class="pcbtn primary" href="/">Accedi o registrati</a>
+  </section>
+
+  <section id="notOwner" class="hidden">
+    <p class="pcbox-p">Solo il proprietario di questo PC puo vedere il codice e i dispositivi collegati.</p>
+    <div class="pcbtn" id="backHome">Torna all'app</div>
+  </section>
+
+  <section id="main" class="hidden">
+    <div class="pcbox-sub2">Collega il tuo telefono</div>
+    <p class="pcbox-p">Apri la app sul telefono: ti mostrera un codice di 6 cifre. Scrivilo qui sotto per collegarlo.</p>
+    <div class="code-in pc-code-in">
+      <input type="text" id="confirmCode" inputmode="numeric" maxlength="6" placeholder="000000" autocomplete="off">
+      <button id="confirmGo">Continua</button>
+    </div>
+    <p class="pcbox-hint" id="confirmMsg">Non serve registrarsi: basta il codice che compare sul telefono.</p>
+
+    <section id="ownerArea" class="hidden">
+      <div class="pcbox-sub2" id="waitTitle">Telefoni che chiedono di collegarsi</div>
+      <div id="waitList" class="devlist">Nessuna richiesta in attesa.</div>
+
+      <div class="pcbox-sub2">Codice mostrato sul PC (metodo alternativo)</div>
+      <p class="pcbox-p">Se preferisci, puoi far mostrare il codice qui sul PC e digitarlo dal telefono.</p>
+      <div class="codebig" id="codeBig">------</div>
+      <div class="codetime" id="codeTime"></div>
+
+      <div class="pcbox-actions">
+        <button class="pcbtn" id="newCode">Nuovo codice</button>
+        <button class="pcbtn primary" id="pairSelf">Abina questo computer</button>
+      </div>
+      <p class="pcbox-hint" id="pairSelfMsg"></p>
+
+      <div class="pcbox-sub2">Apri sul telefono</div>
+      <p class="pcbox-p">Nel telefono la app ti mostra un codice di 6 cifre: scrivilo qui sotto.</p>
+      <div class="pclinks">
+        <div class="pclink"><span>Sempre valido (internet)</span><b id="pubUrl">-</b></div>
+        <div class="pclink"><span>Solo in casa (Wi-Fi)</span><b id="lanUrl">-</b></div>
+      </div>
+
+      <div class="pcbox-sub2">Dispositivi abbinati</div>
+      <div id="devList" class="devlist">Nessun dispositivo abbinato.</div>
+      <p class="pcbox-hint">Ogni telefono inserisce il codice una volta sola: poi entra direttamente. Per togliere un telefono, usa "Rimuovi".</p>
+    </section>
+
+    <p class="pcbox-hint" id="ownerNote">Per vedere i telefoni abbinati e toglierli, accedi con l'account del proprietario.</p>
+    <a class="pcbtn" id="backHome" href="/">Torna all'app</a>
+  </section>
+
+  <div id="askBox" class="hidden pc-ask">
+    <div class="pc-ask-in">
+      <div class="pc-ask-t">Sei sicuro di voler connettere?</div>
+      <div class="pc-ask-d" id="askName">questo dispositivo</div>
+      <div class="pc-ask-b">
+        <button class="pcbtn" id="askNo">Annulla</button>
+        <button class="pcbtn primary" id="askYes">Conferma</button>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="/device.js"></script>
+<script src="/pc.js"></script>
+</body>
+</html>

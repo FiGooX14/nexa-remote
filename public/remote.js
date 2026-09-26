@@ -5,6 +5,7 @@ const state = {
   boot: null,
   apps: [],
   custom: [],
+  device: null,
   customChecks: new Set(),
   touchActive: false,
   deferredInstall: null
@@ -23,6 +24,8 @@ function toast(msg, ok) {
 }
 
 async function api(url, opts) {
+  opts = opts || {};
+  opts.headers = Object.assign({}, NxaDevice.headers(), opts.headers || {});
   let r;
   try {
     r = await fetch(url, opts);
@@ -32,6 +35,18 @@ async function api(url, opts) {
   }
   const data = await r.json().catch(() => ({}));
   if (r.status === 401) { location.href = '/'; }
+  // Dispositivo non abbinato: serve il codice che appare sul PC.
+  if (r.status === 403 && data && data.pairRequired) {
+    try { sessionStorage.setItem('nexa.needCode', '1'); } catch (e) {}
+    location.href = '/';
+    return { status: r.status, data };
+  }
+  // Questo PC appartiene gia a un altro account.
+  if (r.status === 403 && data && data.notOwner) {
+    try { sessionStorage.setItem('nexa.notOwner', '1'); } catch (e) {}
+    location.href = '/';
+    return { status: r.status, data };
+  }
   return { status: r.status, data };
 }
 
@@ -126,6 +141,7 @@ window.addEventListener('appinstalled', () => {
 
 $('btnRefresh').addEventListener('click', async () => {
   const { data } = await api('/api/status');
+  if (data.device) state.device = data.device;
   if (data.boot) { state.boot = data.boot; renderHost(); } else { renderOffline(); }
   toast('Aggiornato', true);
 });
@@ -141,15 +157,26 @@ function renderHost() {
   $('bootBanner').textContent = 'Il PC e acceso dalla ultimo avvio (' + noto + '), da ' + fmtUptime(b.uptimeSeconds) + '.';
   $('bootBanner').classList.remove('hidden');
   $('infoGrid').innerHTML = '';
+  const dev = state.device || {};
   const rows = [
     ['Stato', 'Acceso'],
-    ['Nome PC', b.hostname],
+    ['Nome PC', dev.name || b.hostname],
     ['Sistema', platformLabel],
     ['Memoria', b.totalMemGb + ' GB'],
-    ['Porta', b.port],
+    ['Indirizzo', location.origin.replace(/^https?:\/\//, '')],
+    ['Collegamento', isPrivateHost(location.hostname) ? 'nella tua rete' : 'via internet'],
     ['Acceso da', fmtUptime(b.uptimeSeconds)],
     ['Il tuo dispositivo', state.user && state.user.os ? (state.user.os === 'mac' ? 'Mac' : 'Windows') : '']
   ];
+  renderInfoRows(rows);
+  $('infoGrid').appendChild(infoLine('Cerca un altro PC', 'btnFindPc'));
+}
+
+function isPrivateHost(host) {
+  return /^(10\.|127\.|192\.168\.|169\.254\.)/.test(host) || /^\d+\.\d+\.\d+\.\d+$/.test(host) && !/^100\./.test(host);
+}
+
+function renderInfoRows(rows) {
   for (const [k, v] of rows) {
     const d = document.createElement('div');
     d.className = 'info-row';
@@ -158,26 +185,30 @@ function renderHost() {
   }
 }
 
+function infoLine(label) {
+  const d = document.createElement('div');
+  d.className = 'info-row';
+  const btn = document.createElement('button');
+  btn.className = 'info-action';
+  btn.textContent = label;
+  btn.addEventListener('click', () => { location.href = '/'; });
+  d.appendChild(btn);
+  return d;
+}
+
 function renderOffline() {
   $('bootDot').classList.add('off');
   $('bootBanner').classList.add('hidden');
   $('hostInfo').textContent = 'PC - Spento';
   $('infoGrid').innerHTML = '';
-  const rows = [
+  renderInfoRows([
     ['Stato', 'Spento'],
     ['Nome PC', '-'],
     ['Sistema', '-'],
     ['Memoria', '-'],
-    ['Porta', '-'],
     ['Acceso da', 'Spento'],
     ['Il tuo dispositivo', state.user && state.user.os ? (state.user.os === 'mac' ? 'Mac' : 'Windows') : '']
-  ];
-  for (const [k, v] of rows) {
-    const d = document.createElement('div');
-    d.className = 'info-row';
-    d.innerHTML = '<span>' + esc(k) + '</span><strong>' + esc(String(v)) + '</strong>';
-    $('infoGrid').appendChild(d);
-  }
+  ]);
 }
 
 function fmtUptime(sec) {
@@ -573,6 +604,7 @@ $('wakeOk').addEventListener('click', () => {
   state.user = s.data.user;
   $('btnWakeHelp').hidden = !(state.user && /lorenzomuollo2014@gmail\.com/i.test(state.user.email));
   const st = await api('/api/status');
+  if (st.data.device) state.device = st.data.device;
   if (st.data.boot) { state.boot = st.data.boot; renderHost(); } else { renderOffline(); }
   loadApps();
   loadCustom();

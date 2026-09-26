@@ -1,10 +1,24 @@
 {
-  "name": "nexa-remote",
-  "version": "0.1.0",
-  "description": "NexaRemote - telecomando per PC da telefono (Nexatech)",
+  "name": "@nexa-tech/nexa-remote",
+  "version": "0.1.2",
+  "description": "NexaRemote - telecomando per il PC dal telefono (Nexatech)",
   "main": "server.js",
+  "bin": {
+    "nexaremote": "bin/nexaremote.js"
+  },
+  "files": [
+    "bin/",
+    "lib/",
+    "public/",
+    "server.js",
+    "README.md",
+    "COME-COLLEGARSI-TAILSCALE.txt",
+    "Avvia-NexaRemote.bat",
+    "start-hidden.vbs"
+  ],
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "info": "node bin/nexaremote.js --info"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -14,5 +28,19 @@
   },
   "engines": {
     "node": ">=18.11.0"
+  },
+  "keywords": [
+    "nexatech",
+    "telecomando",
+    "pc",
+    "telefono",
+    "remote",
+    "pwa"
+  ],
+  "author": "Nexatech",
+  "license": "UNLICENSED",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/FiGooX14/nexa-remote.git"
   }
 }

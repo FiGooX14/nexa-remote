@@ -4,3 +4,5 @@ certs/
 .env
 *.log
 nexa-remote/
+*.tgz
+tools/*.exe

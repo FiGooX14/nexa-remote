@@ -19,27 +19,58 @@ Con NexaRemote puoi, dal telefono:
 
 ## Installazione
 
-1. Scarica il progetto: clic su **Code → Download ZIP**, estrai la cartella (oppure `git clone https://github.com/FiGooX14/nexa-remote.git`).
-2. Entra nella cartella del progetto.
-3. Apri un terminale lì e digita:
-   ```
-   npm install
-   ```
-4. (Consigliato) Copia il file `.env.example` in `.env` e cambia `SESSION_SECRET` con una stringa lunga a caso.
+Il modo più semplice, senza cartelle e senza file da toccare:
+
+```
+npm install -g @nexa-tech/nexa-remote
+```
+
+Poi, da **qualsiasi cartella**, scrivi:
+
+```
+nexaremote
+```
+
+Il server parte e si apre il browser. I tuoi dati (account, codici, pulsanti) vengono creati nella cartella `~/.nexaremote` della tua home: nel PC non resta nessuna cartella del progetto.
+
+Comandi utili:
+
+- `nexaremote` — avvia il telecomando e apre il browser
+- `nexaremote --porta 3002` — sceglie la porta (default 3002)
+- `nexaremote --no-browser` — non apre il browser
+- `nexaremote --info` — mostra dove stanno i dati, l'indirizzo in casa e quello pubblico
+- `nexaremote --help` — l'elenco dei comandi
+
+### Installazione manuale (alternativa)
+
+1. Scarica il progetto: clic su **Code → Download ZIP** in https://github.com/FiGooX14/nexa-remote (oppure `git clone`).
+2. Entra nella cartella e digita `npm install`.
+3. Avvia con `node server.js` (oppure doppio click su `Avvia-NexaRemote.bat`).
 
 ## Avvio
 
-- **Windows**: doppio click su `Avvia-NexaRemote.bat` (tieni la finestra aperta).
-- **Mac**: dal Terminale, nella cartella del progetto, scrivi `node server.js`.
+- **Installato con npm**: scrivi `nexaremote` da qualsiasi cartella.
+- **Windows (installazione manuale)**: doppio click su `Avvia-NexaRemote.bat` (tieni la finestra aperta).
+- **Mac (installazione manuale)**: dal Terminale, nella cartella del progetto, scrivi `node server.js`.
 
 Il server stampa un indirizzo del tipo `http://192.168.x.x:3002`: è l'indirizzo da aprire dal telefono.
 
 ## Collegare il telefono
 
-- **In casa**: telefono e PC sulla stessa Wi-Fi → dal browser del telefono apri l'indirizzo stampato (es. `http://192.168.x.x:3002`).
-- **Fuori casa**: installa [Tailscale](https://tailscale.com) su PC e telefono, accedi con lo stesso account su entrambi, poi dal telefono apri `http://IP-tailscale-del-pc:3002` (il server resta raggiungibile ovunque ci sia internet).
+Il collegamento è semplice e **non cerca niente nella Wi-Fi**: nel telefono compare un codice e nel computer lo si digita.
 
-Alla prima apertura registrati (nome, email, password): il primo account creato è l'unico amministratore del server.
+1. Sul **telefono** apri l'indirizzo del PC e crea il tuo account (il primo account è l'amministratore del server). Subito dopo ti viene mostrato un **codice di 6 cifre**.
+2. Sul **computer** apri la pagina del codice all'indirizzo `http://192.168.x.x:3002/pc` (fuori casa, l'indirizzo pubblico finito con `/pc`). Non serve registrarsi.
+3. Digita lì il codice del telefono e premi **Continua**. Il computer chiede *"Sei sicuro di voler connettere?"*: scegli **CONFERMA** (con **Annulla** non viene collegato nulla).
+4. Il telefono si collega da solo e apre il telecomando.
+
+Il codice scade dopo 5 minuti e si usa una volta sola. Il collegamento resta salvato: le volte dopo l'app apre direttamente il telecomando. Non serve installare niente sul telefono, basta aggiungere l'app alla home (Android: menu del browser → *Installa app*; iPhone: *Condividi → Aggiungi alla Home*).
+
+### Personalizzare
+
+- **Nome del PC**: crea il file `data/device.json` nella cartella dei dati con `{"name": "PC di Lorenzo"}` (se non c'è viene usato il nome del computer). Con l'installazione npm la cartella dati è `~/.nexaremote/data`.
+- **Indirizzo pubblico** (per usarlo fuori casa): scrivi l'indirizzo completo in `data/public-url.txt`, una riga sola, es. `https://esempio.it`. Oppure la variabile `PUBLIC_URL` nel `.env`.
+- **Fuori casa con HTTPS (Tailscale)**: metti i file del certificato (`.crt` e `.key`) nella cartella `certs` della tua home: vengono usati automaticamente. Guida: `COME-COLLEGARSI-TAILSCALE.txt`.
 
 ## Sicurezza
 
