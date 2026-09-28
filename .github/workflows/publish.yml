@@ -35,6 +35,9 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
           package-manager-cache: false
 
+      - name: Aggiorna npm
+        run: npm install -g npm@latest
+
       - name: Installa le dipendenze
         run: npm ci
 
@@ -49,5 +52,3 @@ jobs:
 
       - name: Pubblica
         run: npm publish --access public
-        env:
-          NODE_AUTH_TOKEN: ''
