@@ -17,6 +17,7 @@ const DATA_DIR = config.DATA_DIR;
 const CACHE_DIR = config.CACHE_DIR;
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
 const BUTTONS_FILE = path.join(DATA_DIR, 'buttons.json');
+const PCS_FILE = path.join(DATA_DIR, 'pcs.json');
 const BOOT_FILE = path.join(DATA_DIR, 'boot.json');
 const DEVICE_FILE = path.join(DATA_DIR, 'device.json');
 const PUBLIC_URL_FILE = path.join(DATA_DIR, 'public-url.txt');
@@ -401,6 +402,107 @@ app.post('/api/buttons', requirePaired, (req, res) => {
   all[req.session.userId] = clean;
   writeJson(BUTTONS_FILE, all);
   res.json({ ok: true, buttons: clean });
+});
+
+// --- I tuoi PC (lista dei computer collegati a questo account) ---
+// Serve a chi ha lo stesso account su piu PC: da un PC si aggiunge un altro
+// PC (nome + indirizzo) e si passa a usare il telecomando li con un tocco.
+// La lista e' per-account (email) ed e' salvata in data\pcs.json; ogni PC
+// tiene la propria copia, ma il PC corrente compare sempre tra i suoi.
+const MAX_PCS = 20;
+function pcsOf(email) {
+  const all = readJson(PCS_FILE, {});
+  const list = Array.isArray(all[email]) ? all[email] : [];
+  return { all, list };
+}
+
+function savePcs(all) { writeJson(PCS_FILE, all); }
+
+function pcsEntryHost(u) {
+  return String(u || '').replace(/^https?:\/\//i, '').split('/')[0].split(':')[0].toLowerCase();
+}
+
+function normalizePcUrl(u) {
+  u = String(u || '').trim().replace(/\/+$/, '');
+  if (!u) return '';
+  if (!/^https?:\/\//i.test(u)) {
+    if (/^(\d{1,3}\.){3}\d{1,3}(:\d+)?(\/|$)/.test(u) || /^(localhost|192\.168\.|10\.)/i.test(u)) u = 'http://' + u;
+    else u = 'https://' + u;
+  }
+  return u.replace(/\/+$/, '');
+}
+
+// Indirizzo con cui questo PC si presenta di default (pubblico se c'e',
+// altrimenti LAN + porta). La voce "questo PC" della lista la usa come avvio.
+function thisPcUrl() {
+  const dev = deviceInfo();
+  if (dev.publicUrl) return dev.publicUrl.replace(/\/+$/, '');
+  return 'http://' + (dev.lan || 'localhost') + ':' + PORT;
+}
+
+app.get('/api/pcs', requirePaired, (req, res) => {
+  const u = currentUser(req);
+  const email = String(u.email || '').toLowerCase();
+  const { all, list } = pcsOf(email);
+  const dev = deviceInfo();
+  const now = new Date().toISOString();
+  let changed = false;
+  let self = list.find(e => e.self);
+  if (!self) {
+    self = { id: 'self', name: dev.name, url: thisPcUrl(), added: now, self: true };
+    list.unshift(self);
+    changed = true;
+  }
+  if (changed) { all[email] = list; savePcs(all); }
+  res.json({ ok: true, pcs: list, current: { id: self.id, name: self.name, url: self.url } });
+});
+
+app.post('/api/pcs', requirePaired, (req, res) => {
+  const u = currentUser(req);
+  const email = String(u.email || '').toLowerCase();
+  const name = String((req.body || {}).name || '').trim().slice(0, 30);
+  const url = normalizePcUrl((req.body || {}).url);
+  if (!name) return res.status(400).json({ ok: false, error: 'Scrivi il nome del PC' });
+  if (!url) return res.status(400).json({ ok: false, error: 'Scrivi un indirizzo valido' });
+  const { all, list } = pcsOf(email);
+  const host = pcsEntryHost(url);
+  const dup = list.find(e => !e.self && (pcsEntryHost(e.url) === host || e.url === url));
+  if (dup) {
+    dup.name = name; dup.url = url;
+    all[email] = list; savePcs(all);
+    return res.json({ ok: true, pcs: list, existing: true });
+  }
+  if (list.length >= MAX_PCS) return res.status(400).json({ ok: false, error: 'Troppi PC in lista' });
+  list.push({ id: crypto.randomUUID().slice(0, 8), name, url, added: new Date().toISOString(), self: false });
+  all[email] = list; savePcs(all);
+  res.json({ ok: true, pcs: list });
+});
+
+app.patch('/api/pcs/:id', requirePaired, (req, res) => {
+  const u = currentUser(req);
+  const email = String(u.email || '').toLowerCase();
+  const id = String(req.params.id || '');
+  const name = String((req.body || {}).name || '').trim().slice(0, 30);
+  if (!name) return res.status(400).json({ ok: false, error: 'Scrivi il nuovo nome' });
+  const { all, list } = pcsOf(email);
+  const pc = list.find(e => e.id === id);
+  if (!pc) return res.status(404).json({ ok: false, error: 'PC non trovato' });
+  pc.name = name;
+  all[email] = list; savePcs(all);
+  res.json({ ok: true, pcs: list });
+});
+
+app.delete('/api/pcs/:id', requirePaired, (req, res) => {
+  const u = currentUser(req);
+  const email = String(u.email || '').toLowerCase();
+  const id = String(req.params.id || '');
+  const { all, list } = pcsOf(email);
+  const pc = list.find(e => e.id === id);
+  if (!pc) return res.status(404).json({ ok: false, error: 'PC non trovato' });
+  if (pc.self) return res.status(400).json({ ok: false, error: 'Non puoi rimuovere il PC a cui sei collegato' });
+  all[email] = list.filter(e => e.id !== id);
+  savePcs(all);
+  res.json({ ok: true, pcs: all[email] });
 });
 
 app.get('/api/apps', requirePaired, async (req, res) => {

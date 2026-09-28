@@ -6,6 +6,9 @@ const state = {
   apps: [],
   custom: [],
   device: null,
+  pcs: [],
+  currentPc: null,
+  lastAddedUrl: '',
   customChecks: new Set(),
   touchActive: false,
   deferredInstall: null
@@ -168,8 +171,9 @@ function renderHost() {
     ['Acceso da', fmtUptime(b.uptimeSeconds)],
     ['Il tuo dispositivo', state.user && state.user.os ? (state.user.os === 'mac' ? 'Mac' : 'Windows') : '']
   ];
-  renderInfoRows(rows);
-  $('infoGrid').appendChild(infoLine('Cerca un altro PC', 'btnFindPc'));
+renderInfoRows(rows);
+  $('infoGrid').appendChild(infoLine('I tuoi PC', openPcsOverlay));
+  $('infoGrid').appendChild(infoLine('Cerca un altro PC'));
 }
 
 function isPrivateHost(host) {
@@ -185,13 +189,13 @@ function renderInfoRows(rows) {
   }
 }
 
-function infoLine(label) {
+function infoLine(label, onClick) {
   const d = document.createElement('div');
   d.className = 'info-row';
   const btn = document.createElement('button');
   btn.className = 'info-action';
   btn.textContent = label;
-  btn.addEventListener('click', () => { location.href = '/'; });
+  btn.addEventListener('click', () => { (onClick || (() => { location.href = '/'; }))(); });
   d.appendChild(btn);
   return d;
 }
@@ -608,6 +612,142 @@ $('wakeOk').addEventListener('click', () => {
   $('wakeOverlay').classList.add('hidden');
 });
 
+// --- I tuoi PC: aggiungi un altro PC e passaci con un tocco ---
+function pcHost(u) {
+  return String(u || '').replace(/^https?:\/\//i, '').split('/')[0].split(':')[0].toLowerCase();
+}
+function pcRemoteUrl(pc) {
+  return String(pc.url || '').replace(/\/+$/, '') + '/remote';
+}
+function normalizePcUrl(u) {
+  u = String(u || '').trim().replace(/\/+$/, '');
+  if (!u) return '';
+  if (!/^https?:\/\//i.test(u)) {
+    if (/^(\d{1,3}\.){3}\d{1,3}(:\d+)?(\/|$)/.test(u) || /^(localhost|192\.168\.|10\.)/i.test(u)) u = 'http://' + u;
+    else u = 'https://' + u;
+  }
+  return u.replace(/\/+$/, '');
+}
+async function loadPcs() {
+  const { status, data } = await api('/api/pcs');
+  if (status !== 200 || !data.ok) return;
+  state.pcs = data.pcs || [];
+  state.currentPc = data.current || null;
+  renderPcsList();
+}
+function openPcsOverlay() {
+  $('pcsOverlay').classList.remove('hidden');
+  loadPcs();
+}
+function renderPcsList() {
+  const list = $('pcsList');
+  list.innerHTML = '';
+  if (!state.pcs.length) {
+    const li = document.createElement('li');
+    li.className = 'app-empty';
+    li.textContent = 'Nessun PC ancora. Aggiungi il primo qui sotto.';
+    list.appendChild(li);
+    return;
+  }
+  state.pcs.forEach((pc) => {
+    const self = pc.self || (state.currentPc && state.currentPc.id === pc.id);
+    const li = document.createElement('li');
+    li.className = 'pcs-item' + (self ? ' self' : '');
+    const main = document.createElement('div');
+    main.className = 'pcs-main';
+    const nm = document.createElement('div');
+    nm.className = 'pcs-name';
+    nm.textContent = pc.name;
+    if (self) {
+      const badge = document.createElement('span');
+      badge.className = 'pcs-badge';
+      badge.textContent = 'Questo PC';
+      nm.appendChild(badge);
+    }
+    const url = document.createElement('div');
+    url.className = 'pcs-url';
+    url.textContent = pc.url || '';
+    main.appendChild(nm);
+    main.appendChild(url);
+    const acts = document.createElement('div');
+    acts.className = 'pcs-actions';
+    const bOpen = document.createElement('button');
+    bOpen.className = 'app-act accent';
+    bOpen.innerHTML = '<svg class="ic"><use href="#i-open"/></svg>';
+    bOpen.title = 'Usa il telecomando qui';
+    bOpen.addEventListener('click', (ev) => { ev.stopPropagation(); openPc(pc); });
+    const bEdit = document.createElement('button');
+    bEdit.className = 'app-act';
+    bEdit.innerHTML = '<svg class="ic"><use href="#i-edit"/></svg>';
+    bEdit.title = 'Rinomina';
+    bEdit.addEventListener('click', (ev) => { ev.stopPropagation(); renamePc(pc); });
+    const bDel = document.createElement('button');
+    bDel.className = 'app-act danger';
+    bDel.innerHTML = '<svg class="ic"><use href="#i-trash"/></svg>';
+    bDel.title = 'Rimuovi dalla lista';
+    if (!self) bDel.addEventListener('click', (ev) => { ev.stopPropagation(); removePc(pc); });
+    else { bDel.disabled = true; bDel.style.opacity = 0.35; }
+    acts.appendChild(bOpen);
+    acts.appendChild(bEdit);
+    acts.appendChild(bDel);
+    li.appendChild(main);
+    li.appendChild(acts);
+    if (!self) li.addEventListener('click', () => openPc(pc));
+    list.appendChild(li);
+  });
+}
+function openPc(pc) {
+  const u = pcRemoteUrl(pc);
+  if (!u) { toast('Indirizzo mancante', false); return; }
+  location.href = u;
+}
+function renamePc(pc) {
+  const nuovo = window.prompt('Nuovo nome del PC:', String(pc.name || ''));
+  if (nuovo === null) return;
+  const name = String(nuovo).trim();
+  if (!name) { toast('Nome vuoto', false); return; }
+  api('/api/pcs/' + encodeURIComponent(pc.id), {
+    method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name })
+  }).then((r) => {
+    if (r.status === 200 && r.data.ok) { loadPcs(); toast('Rinominato', true); }
+    else toast((r.data && r.data.error) || 'Errore', false);
+  });
+}
+function removePc(pc) {
+  confirmDialog('Rimuovere "' + (pc.name || '') + '" dalla lista dei tuoi PC?', () => {
+    api('/api/pcs/' + encodeURIComponent(pc.id), { method: 'DELETE' }).then((r) => {
+      if (r.status === 200 && r.data.ok) { loadPcs(); toast('Rimosso', true); }
+      else toast((r.data && r.data.error) || 'Errore', false);
+    });
+  });
+}
+async function addPc() {
+  const name = String($('pcNewName').value || '').trim();
+  const url = normalizePcUrl($('pcNewUrl').value);
+  if (!name) { toast('Scrivi il nome del PC', false); return; }
+  if (!url) { toast('Scrivi un indirizzo valido per il PC', false); return; }
+  const { status, data } = await api('/api/pcs', {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, url })
+  });
+  if (status !== 200 || !data.ok) { toast((data.error) || 'Errore', false); return; }
+  $('pcNewName').value = '';
+  $('pcNewUrl').value = '';
+  state.lastAddedUrl = url;
+  loadPcs();
+  toast(data.existing ? 'PC gia in lista, aggiornato' : 'PC aggiunto', true);
+}
+$('btnPcAdd').addEventListener('click', addPc);
+$('btnPcOpenNew').addEventListener('click', () => {
+  const u = state.lastAddedUrl || normalizePcUrl($('pcNewUrl').value);
+  if (!u) { toast('Salva prima un PC', false); return; }
+  window.open(u, '_blank');
+});
+$('btnPcsClose').addEventListener('click', () => $('pcsOverlay').classList.add('hidden'));
+$('pcsOverlay').addEventListener('click', (e) => {
+  if (e.target && e.target.id === 'pcsOverlay') $('pcsOverlay').classList.add('hidden');
+});
+$('btnPcs').addEventListener('click', openPcsOverlay);
+
 (async () => {
   const s = await api('/api/session');
   if (!s.data.ok || !s.data.user) { location.href = '/'; return; }
@@ -616,6 +756,7 @@ $('wakeOk').addEventListener('click', () => {
   const st = await api('/api/status');
   if (st.data.device) state.device = st.data.device;
   if (st.data.boot) { state.boot = st.data.boot; renderHost(); } else { renderOffline(); }
+  loadPcs();
   loadApps();
   loadCustom();
   checkBrightness();

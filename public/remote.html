@@ -53,6 +53,8 @@
   <symbol id="i-close" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
   <symbol id="i-min" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></symbol>
   <symbol id="i-max" viewBox="0 0 24 24"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24"><path d="M17 3a2.8 2.8 0 0 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></symbol>
 </svg>
 
 <header class="topbar">
@@ -66,6 +68,7 @@
   </div>
   <div class="topbar-right">
     <button class="icon-btn" id="btnInstall" title="Installa come app" hidden><svg class="ic"><use href="#i-install"/></svg><span>Installa</span></button>
+    <button class="icon-btn" id="btnPcs" title="I tuoi PC"><svg class="ic"><use href="#i-pc"/></svg><span>PC</span></button>
     <button class="icon-btn icon-only" id="btnRefresh" title="Aggiorna"><svg class="ic"><use href="#i-restart"/></svg></button>
     <button class="icon-btn" id="btnLogout" title="Esci"><svg class="ic"><use href="#i-logout"/></svg><span>Esci</span></button>
   </div>
@@ -281,6 +284,24 @@
     <p class="hint">MAC del PC: <b>08-8A-F1-A1-1A-FE</b> (WiFi) / <b>E0-3F-49-7E-49-32</b> (Ethernet, se usi il cavo)</p>
     <div class="row-2">
       <button class="big-btn accent" id="wakeOk">Ho capito</button>
+    </div>
+  </div>
+</div>
+
+<div class="confirm-overlay hidden" id="pcsOverlay">
+  <div class="confirm-box pcs-box">
+    <div class="section-title"><svg class="ic"><use href="#i-pc"/></svg>I tuoi PC</div>
+    <p class="hint">Questi sono i computer collegati al tuo account. Tocca uno per usare subito il telecomando su quello.</p>
+    <ul class="pcs-list" id="pcsList"></ul>
+    <div class="custom-add pcs-add">
+      <input id="pcNewName" placeholder="Nome del nuovo PC (es. PC camera)" maxlength="30">
+      <input id="pcNewUrl" placeholder="Indirizzo (es. https://mio-pc.tailoo123.ts.net)" maxlength="128">
+      <button class="big-btn accent" id="btnPcAdd">Aggiungi</button>
+    </div>
+    <p class="hint">Dopo "Aggiungi": apri l'indirizzo del nuovo PC, accedi con lo <b>stesso account</b> e collega il telefono col <b>codice</b> come hai fatto per il primo PC.</p>
+    <div class="row-2">
+      <button class="big-btn" id="btnPcOpenNew">Apri nuovo PC e collega</button>
+      <button class="ghost-btn" id="btnPcsClose">Chiudi</button>
     </div>
   </div>
 </div>
