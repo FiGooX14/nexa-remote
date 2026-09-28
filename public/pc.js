@@ -46,23 +46,39 @@ async function refresh() {
   }
   show('ownerArea');
   hide('ownerNote');
+  const port = r.data.port || 3002;
   if (r.data.code) setCode(r.data.code.code, r.data.code.expiresAt);
-  $('lanUrl').textContent = 'http://' + (r.data.lan || 'indirizzo-del-pc') + ':3002';
+  $('lanUrl').textContent = 'http://' + (r.data.lan || 'indirizzo-del-pc') + ':' + port;
   if (r.data.publicUrl) { PUBLIC_URL = r.data.publicUrl; $('pubUrl').textContent = r.data.publicUrl; }
   renderDevices(r.data.devices || [], r.data.me);
   renderWaiting(r.data.pending || []);
 }
 
-function setCode(code, expiresAt) {
-  $('codeBig').textContent = String(code);
+function updateCodeTime(expiresAt) {
   const left = Math.max(0, expiresAt - Date.now());
   const mins = Math.floor(left / 60000);
   const secs = Math.floor((left % 60000) / 1000);
   $('codeTime').textContent = left > 0
     ? 'valido per altri ' + mins + ' min ' + String(secs).padStart(2, '0') + ' sec'
     : 'codice scaduto: premi "Nuovo codice"';
-  if (codeTimer) clearTimeout(codeTimer);
-  codeTimer = setTimeout(refresh, 1000);
+}
+
+function setCode(code, expiresAt) {
+  $('codeBig').textContent = String(code);
+  updateCodeTime(expiresAt);
+  // nome: il countdown avanza tutto qui dentro (niente richieste al server
+  // ogni secondo); alla scadenza si ricarica una volta sola per un codice nuovo.
+  if (codeTimer) clearInterval(codeTimer);
+  codeTimer = setInterval(() => {
+    const left = expiresAt - Date.now();
+    if (left > 0) {
+      updateCodeTime(expiresAt);
+    } else {
+      clearInterval(codeTimer);
+      codeTimer = null;
+      refresh();
+    }
+  }, 1000);
 }
 
 // Scritto il codice: si chiede "sei sicuro di voler connettere?" prima di collegare.

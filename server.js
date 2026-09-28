@@ -6,8 +6,6 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 const https = require('https');
-const net = require('net');
-const dns = require('dns');
 const cp = require('child_process');
 const actions = require('./lib/actions');
 const pair = require('./lib/pair');
@@ -36,6 +34,10 @@ const TLS_CERT = TLS.cert;
 const TLS_KEY = TLS.key;
 const SESSION_SECRET = env.SESSION_SECRET || process.env.SESSION_SECRET || 'nexaremote-segretissimo';
 const BLOCKED_TERMS = String(env.BLOCKED_TERMS || process.env.BLOCKED_TERMS || '').split(',').map(s => s.trim()).filter(Boolean);
+// Se impostato, SOLO questo account puo diventare proprietario del PC.
+// Serve quando il server e' raggiungibile da internet (Tailscale Funnel):
+// senza, il PRIMO che si registra sul server diventerebbe il proprietario.
+const OWNER_EMAIL = String(env.OWNER_EMAIL || process.env.OWNER_EMAIL || '').trim().toLowerCase();
 
 function loadEnv(file) {
   const out = {};
@@ -182,6 +184,17 @@ function isOwner(req) {
   return !!owner && owner.toLowerCase() === u.email.toLowerCase();
 }
 
+// Decide chi diventa proprietario del PC. Se e' impostata OWNER_EMAIL nel .env,
+// solo quell'account puo diventarlo (i registrati da internet restano esclusi).
+function claimOwner(email) {
+  ensureOwner();
+  if (OWNER_EMAIL) {
+    if (String(email || '').toLowerCase() === OWNER_EMAIL) pair.setOwner(email);
+    return;
+  }
+  pair.setOwner(email);
+}
+
 const throttleMap = new Map();
 function throttleCheck(key) {
   const now = Date.now();
@@ -230,7 +243,7 @@ app.post('/api/register', (req, res) => {
   const user = { id: crypto.randomUUID(), nome, email, os: userOs, password: bcrypt.hashSync(password, 10), created: new Date().toISOString() };
   users.push(user);
   saveUsers(users);
-  pair.setOwner(user.email); // il primo account creato diventa proprietario del PC
+  claimOwner(user.email); // il proprietario (se OWNER_EMAIL e' impostato, solo lui) rivendica il PC
   req.session.userId = user.id;
   res.json({ ok: true, user: { id: user.id, nome: user.nome, email: user.email, os: userOs } });
 });
@@ -247,7 +260,7 @@ app.post('/api/login', (req, res) => {
     return res.status(401).json({ ok: false, error: 'Email o password errati' });
   }
   throttleMap.delete(key);
-  pair.setOwner(u.email); // se non c'e' ancora un proprietario, chi accede per primo lo diventa
+  claimOwner(u.email); // chi accede con l'account giusto puo diventare proprietario
   req.session.userId = u.id;
   res.json({ ok: true, user: { id: u.id, nome: u.nome, email: u.email, os: u.os || 'windows' } });
 });

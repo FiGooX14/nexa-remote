@@ -68,6 +68,7 @@ function firstRun() {
     '',
     'PORT=3002',
     'SESSION_SECRET=' + crypto.randomBytes(24).toString('hex'),
+    'BLOCKED_TERMS=format,diskpart,clear-disk,Remove-Item -Recurse -Force C:\\,Reset-Computer,Restart-Computer',
     '# Per il collegamento col telefono basta aprire l indirizzo del PC.',
     '# Fuori casa si aggiunge HTTPS con Tailscale: metti i file del certificato',
     '# (.crt e .key) nella cartella ' + CERT_DIR,

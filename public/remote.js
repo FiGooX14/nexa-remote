@@ -360,6 +360,12 @@ async function micStart() {
       if (s > 1) s = 1; else if (s < -1) s = -1;
       int16[i] = s < 0 ? s * 0x8000 : s * 0x7fff;
     }
+    // il nodo e' collegato agli altoparlanti perche' il processore funzioni:
+    // azzeriamo l'uscita cosi' il telefono non riproduce quello che capta (eco).
+    if (e.outputBuffer && e.outputBuffer.length) {
+      const outData = e.outputBuffer.getChannelData(0);
+      for (let i = 0; i < outData.length; i++) outData[i] = 0;
+    }
     fetch('/api/audio/talk', {
       method: 'POST',
       headers: { 'Content-Type': 'application/octet-stream' },
@@ -555,21 +561,25 @@ function renderCustom() {
     list.appendChild(li);
     return;
   }
-  state.custom.forEach((b, i) => {
+  state.custom.forEach((b) => {
     const li = document.createElement('li');
     li.className = 'custom-item';
     const label = document.createElement('label');
     const cb = document.createElement('input');
     cb.type = 'checkbox';
-    cb.checked = state.customChecks.has(i);
+    cb.checked = state.customChecks.has(b);
     cb.addEventListener('change', () => {
-      if (cb.checked) state.customChecks.add(i); else state.customChecks.delete(i);
+      if (cb.checked) state.customChecks.add(b); else state.customChecks.delete(b);
     });
     const text = document.createElement('span');
     text.textContent = b.name + ' -> ' + b.target;
     const del = document.createElement('button');
     del.textContent = 'X';
-    del.addEventListener('click', () => { state.custom.splice(i, 1); renderCustom(); });
+    del.addEventListener('click', () => {
+      state.custom = state.custom.filter(x => x !== b);
+      state.customChecks.delete(b);
+      renderCustom();
+    });
     label.appendChild(cb);
     label.appendChild(text);
     li.appendChild(label);
@@ -578,7 +588,7 @@ function renderCustom() {
   });
 }
 $('btnRunCustom').addEventListener('click', () => {
-  const sel = [...state.customChecks].map(i => state.custom[i]);
+  const sel = state.custom.filter(b => state.customChecks.has(b));
   if (!sel.length) { toast('Seleziona almeno un pulsante', false); return; }
   if (sel.length > 3) { toast('Max 3 alla volta', false); return; }
   sel.forEach(b => runAction('openApp', { target: b.target }));
