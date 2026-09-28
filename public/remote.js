@@ -7,8 +7,7 @@ const state = {
   custom: [],
   device: null,
   pcs: [],
-  currentPc: null,
-  lastAddedUrl: '',
+  pcsSearching: false,
   customChecks: new Set(),
   touchActive: false,
   deferredInstall: null
@@ -173,7 +172,6 @@ function renderHost() {
   ];
 renderInfoRows(rows);
   $('infoGrid').appendChild(infoLine('I tuoi PC', openPcsOverlay));
-  $('infoGrid').appendChild(infoLine('Cerca un altro PC'));
 }
 
 function isPrivateHost(host) {
@@ -612,27 +610,28 @@ $('wakeOk').addEventListener('click', () => {
   $('wakeOverlay').classList.add('hidden');
 });
 
-// --- I tuoi PC: aggiungi un altro PC e passaci con un tocco ---
-function pcHost(u) {
-  return String(u || '').replace(/^https?:\/\//i, '').split('/')[0].split(':')[0].toLowerCase();
-}
+// --- I tuoi PC: i computer di NexaRemote si trovano da soli ---
+// Niente indirizzi da scrivere a mano: il server scandisce la rete di casa e
+// dice quali computer hanno NexaRemote. Il PC su cui sei e' sempre in cima;
+// gli altri si toccano per aprire il loro telecomando (se non sono ancora
+// collegati, la loro pagina mostra il codice da scrivere su /pc di quel PC).
 function pcRemoteUrl(pc) {
-  return String(pc.url || '').replace(/\/+$/, '') + '/remote';
-}
-function normalizePcUrl(u) {
-  u = String(u || '').trim().replace(/\/+$/, '');
-  if (!u) return '';
-  if (!/^https?:\/\//i.test(u)) {
-    if (/^(\d{1,3}\.){3}\d{1,3}(:\d+)?(\/|$)/.test(u) || /^(localhost|192\.168\.|10\.)/i.test(u)) u = 'http://' + u;
-    else u = 'https://' + u;
-  }
-  return u.replace(/\/+$/, '');
+  const base = String(pc.publicUrl || pc.base || '').replace(/\/+$/, '');
+  if (!base) return '';
+  return base + '/remote';
 }
 async function loadPcs() {
-  const { status, data } = await api('/api/pcs');
-  if (status !== 200 || !data.ok) return;
-  state.pcs = data.pcs || [];
-  state.currentPc = data.current || null;
+  if (state.pcsSearching) return;
+  state.pcsSearching = true;
+  renderPcsList();
+  let found = [];
+  try {
+    const r = await fetch('/api/discover/scan');
+    const data = await r.json();
+    if (data && data.ok) found = data.found || [];
+  } catch (e) { }
+  state.pcsSearching = false;
+  state.pcs = found;
   renderPcsList();
 }
 function openPcsOverlay() {
@@ -642,23 +641,34 @@ function openPcsOverlay() {
 function renderPcsList() {
   const list = $('pcsList');
   list.innerHTML = '';
-  if (!state.pcs.length) {
+  if (state.pcsSearching) {
     const li = document.createElement('li');
     li.className = 'app-empty';
-    li.textContent = 'Nessun PC ancora. Aggiungi il primo qui sotto.';
+    li.textContent = 'Cerco i tuoi PC nella rete...';
     list.appendChild(li);
     return;
   }
-  state.pcs.forEach((pc) => {
-    const self = pc.self || (state.currentPc && state.currentPc.id === pc.id);
+  if (!state.pcs.length) {
     const li = document.createElement('li');
-    li.className = 'pcs-item' + (self ? ' self' : '');
+    li.className = 'app-empty';
+    li.textContent = 'Nessun PC trovato. Controlla che gli altri siano accesi e con NexaRemote.'
+      + ' Oppure apri la pagina del nuovo PC e collega il telefono col codice, come per il primo.';
+    list.appendChild(li);
+    return;
+  }
+  const self = state.pcs.find(p => p.isSelf);
+  const others = state.pcs.filter(p => !p.isSelf);
+  const items = self ? [self].concat(others) : others;
+  items.forEach((pc) => {
+    const isSelf = !!pc.isSelf;
+    const li = document.createElement('li');
+    li.className = 'pcs-item' + (isSelf ? ' self' : '');
     const main = document.createElement('div');
     main.className = 'pcs-main';
     const nm = document.createElement('div');
     nm.className = 'pcs-name';
-    nm.textContent = pc.name;
-    if (self) {
+    nm.textContent = pc.name || 'PC';
+    if (isSelf) {
       const badge = document.createElement('span');
       badge.className = 'pcs-badge';
       badge.textContent = 'Questo PC';
@@ -666,81 +676,30 @@ function renderPcsList() {
     }
     const url = document.createElement('div');
     url.className = 'pcs-url';
-    url.textContent = pc.url || '';
+    url.textContent = pc.base || pc.publicUrl || '';
     main.appendChild(nm);
     main.appendChild(url);
-    const acts = document.createElement('div');
-    acts.className = 'pcs-actions';
-    const bOpen = document.createElement('button');
-    bOpen.className = 'app-act accent';
-    bOpen.innerHTML = '<svg class="ic"><use href="#i-open"/></svg>';
-    bOpen.title = 'Usa il telecomando qui';
-    bOpen.addEventListener('click', (ev) => { ev.stopPropagation(); openPc(pc); });
-    const bEdit = document.createElement('button');
-    bEdit.className = 'app-act';
-    bEdit.innerHTML = '<svg class="ic"><use href="#i-edit"/></svg>';
-    bEdit.title = 'Rinomina';
-    bEdit.addEventListener('click', (ev) => { ev.stopPropagation(); renamePc(pc); });
-    const bDel = document.createElement('button');
-    bDel.className = 'app-act danger';
-    bDel.innerHTML = '<svg class="ic"><use href="#i-trash"/></svg>';
-    bDel.title = 'Rimuovi dalla lista';
-    if (!self) bDel.addEventListener('click', (ev) => { ev.stopPropagation(); removePc(pc); });
-    else { bDel.disabled = true; bDel.style.opacity = 0.35; }
-    acts.appendChild(bOpen);
-    acts.appendChild(bEdit);
-    acts.appendChild(bDel);
     li.appendChild(main);
-    li.appendChild(acts);
-    if (!self) li.addEventListener('click', () => openPc(pc));
+    if (!isSelf) {
+      const bOpen = document.createElement('button');
+      bOpen.className = 'app-act accent';
+      bOpen.innerHTML = '<svg class="ic"><use href="#i-open"/></svg>';
+      bOpen.title = 'Usa il telecomando qui';
+      bOpen.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        const u = pcRemoteUrl(pc);
+        if (u) window.open(u, '_blank');
+      });
+      li.appendChild(bOpen);
+      li.classList.add('tappable');
+    }
     list.appendChild(li);
   });
 }
-function openPc(pc) {
-  const u = pcRemoteUrl(pc);
-  if (!u) { toast('Indirizzo mancante', false); return; }
-  location.href = u;
-}
-function renamePc(pc) {
-  const nuovo = window.prompt('Nuovo nome del PC:', String(pc.name || ''));
-  if (nuovo === null) return;
-  const name = String(nuovo).trim();
-  if (!name) { toast('Nome vuoto', false); return; }
-  api('/api/pcs/' + encodeURIComponent(pc.id), {
-    method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name })
-  }).then((r) => {
-    if (r.status === 200 && r.data.ok) { loadPcs(); toast('Rinominato', true); }
-    else toast((r.data && r.data.error) || 'Errore', false);
-  });
-}
-function removePc(pc) {
-  confirmDialog('Rimuovere "' + (pc.name || '') + '" dalla lista dei tuoi PC?', () => {
-    api('/api/pcs/' + encodeURIComponent(pc.id), { method: 'DELETE' }).then((r) => {
-      if (r.status === 200 && r.data.ok) { loadPcs(); toast('Rimosso', true); }
-      else toast((r.data && r.data.error) || 'Errore', false);
-    });
-  });
-}
-async function addPc() {
-  const name = String($('pcNewName').value || '').trim();
-  const url = normalizePcUrl($('pcNewUrl').value);
-  if (!name) { toast('Scrivi il nome del PC', false); return; }
-  if (!url) { toast('Scrivi un indirizzo valido per il PC', false); return; }
-  const { status, data } = await api('/api/pcs', {
-    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, url })
-  });
-  if (status !== 200 || !data.ok) { toast((data.error) || 'Errore', false); return; }
-  $('pcNewName').value = '';
-  $('pcNewUrl').value = '';
-  state.lastAddedUrl = url;
+$('btnPcScan').addEventListener('click', () => {
+  if (state.pcsSearching) return;
+  toast('Cerco i tuoi PC nella rete...', true);
   loadPcs();
-  toast(data.existing ? 'PC gia in lista, aggiornato' : 'PC aggiunto', true);
-}
-$('btnPcAdd').addEventListener('click', addPc);
-$('btnPcOpenNew').addEventListener('click', () => {
-  const u = state.lastAddedUrl || normalizePcUrl($('pcNewUrl').value);
-  if (!u) { toast('Salva prima un PC', false); return; }
-  window.open(u, '_blank');
 });
 $('btnPcsClose').addEventListener('click', () => $('pcsOverlay').classList.add('hidden'));
 $('pcsOverlay').addEventListener('click', (e) => {

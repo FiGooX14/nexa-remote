@@ -226,7 +226,7 @@ input[type=range] { width: 100%; accent-color: var(--accent-strong); }
 }
 .pcs-url { font-size: 12px; color: var(--dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pcs-actions { display: flex; gap: 6px; flex-shrink: 0; }
-.pcs-add { margin-bottom: 10px; }
+.pcs-item.tappable:hover { border-color: var(--accent-strong); }
 
 .pad {
   background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);

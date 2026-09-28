@@ -16,6 +16,7 @@
 
 <svg xmlns="http://www.w3.org/2000/svg" style="display:none" aria-hidden="true">
   <symbol id="i-power" viewBox="0 0 24 24"><path d="M12 2v10"/><path d="M18.4 6.6A9 9 0 1 0 20 12"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.7" y2="16.7"/></symbol>
   <symbol id="i-restart" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><polyline points="20 2 20 6 16 6"/></symbol>
   <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
   <symbol id="i-sleep" viewBox="0 0 24 24"><path d="M20 12.5A8.5 8.5 0 1 1 11.5 4 6.6 6.6 0 0 0 20 12.5z"/></symbol>
@@ -291,16 +292,10 @@
 <div class="confirm-overlay hidden" id="pcsOverlay">
   <div class="confirm-box pcs-box">
     <div class="section-title"><svg class="ic"><use href="#i-pc"/></svg>I tuoi PC</div>
-    <p class="hint">Questi sono i computer collegati al tuo account. Tocca uno per usare subito il telecomando su quello.</p>
+    <p class="hint">Questi sono i computer collegati al tuo account. Se ne vuoi aggiungere uno, tocca "Cerca nella rete": il nuovo PC si collega con il <b>codice</b>, come il primo.</p>
     <ul class="pcs-list" id="pcsList"></ul>
-    <div class="custom-add pcs-add">
-      <input id="pcNewName" placeholder="Nome del nuovo PC (es. PC camera)" maxlength="30">
-      <input id="pcNewUrl" placeholder="Indirizzo (es. https://mio-pc.tailoo123.ts.net)" maxlength="128">
-      <button class="big-btn accent" id="btnPcAdd">Aggiungi</button>
-    </div>
-    <p class="hint">Dopo "Aggiungi": apri l'indirizzo del nuovo PC, accedi con lo <b>stesso account</b> e collega il telefono col <b>codice</b> come hai fatto per il primo PC.</p>
     <div class="row-2">
-      <button class="big-btn" id="btnPcOpenNew">Apri nuovo PC e collega</button>
+      <button class="big-btn accent" id="btnPcScan"><svg class="ic"><use href="#i-search"/></svg>Collega un nuovo PC</button>
       <button class="ghost-btn" id="btnPcsClose">Chiudi</button>
     </div>
   </div>
